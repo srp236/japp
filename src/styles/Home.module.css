@@ -1,0 +1,118 @@
+.headerStyle {
+  background-color: rgb(230,26,57);
+  height: 80px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border: none;
+}
+
+.headerStyle a {
+  color: white;
+} 
+
+.headerStyle a:hover{
+  color: green;
+}
+
+.bttnSpace {
+  padding: 0px 40px;
+}
+
+/* hero/banner image/text section */
+.landing {
+  padding: 0px 0px;
+  display: flex;
+  height: 770px;
+  background: linear-gradient(to bottom, rgb(230,26,57), white);
+  border: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.grassAni {
+    animation: animatedBackground 120s linear infinite;
+    background: url('../../public/images/grass.png') center/cover repeat-x;
+    height: 230px;
+    /* transform: translateZ(0); */
+    animation-name: animatedBackground;
+    display: block;
+    background-color: white;
+}
+
+@keyframes animatedBackground {
+  0% {background-position-x: 0px;}
+  100% {background-position-x: -3016px;}
+}
+
+.box {
+  height: 300px;
+  width: 300px;
+  background-color: bisque;
+}
+
+/* body of page */
+.contentStyle {
+  padding: 100px 100px;
+  min-height: 120;
+  background-color: white;
+}
+
+.colStyle {
+  margin: 20px;
+}
+
+.imgSide {
+  width: 10px;
+  background-color: rgb(230,26,57);
+  height: 300px;
+}
+
+.space {
+  height: 500px;
+}
+
+/* page footer consistent across pages */
+.footerStyle {
+  background-color: rgb(230,26,57);
+  height: 300px;
+  position:relative;
+  bottom: 0px;
+  color: white;
+}
+
+.footerImg {
+  bottom: 25px;
+  left: 25px;
+  position: absolute;
+}
+
+/* card componenents for kanji */
+
+.card {
+  width: 400px;
+  height: 200px;
+  margin: 10px 10px;
+  padding: 0px 0px;
+}
+.kanjiCard {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  overflow-wrap: normal;
+}
+
+.cardL {
+  color: red;
+  font-size: 100px;
+  width: 50%;
+}
+.cardR {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+
