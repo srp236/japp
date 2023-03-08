@@ -110,13 +110,14 @@ export default function Home() {
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <Layout>
-      <Header className={styles.headerStyle} style={{backgroundColor:'purple'}}>
+      <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
         <Image alt='logo' height={50} src={logo} />
         <div>
-          <Link className={styles.bttnSpace} href={'/home/'}>Login</Link>
-          <Link className={styles.bttnSpace} href={'/register/'}>Register</Link>
+          <div></div>
+          <div></div>
         </div>
       </Header>
+      <div className={styles.bar}></div>
       <Content>
         <Spin spinning={loading}>
           <h1>Search a Song</h1>

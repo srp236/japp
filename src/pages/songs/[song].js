@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image'
-import { Layout, Row, Col, Spin, Card } from 'antd';
+import { Layout, Row, Col, Spin, Card, Grid } from 'antd';
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../../public/images/logo_red.png'
 import { useRouter } from "next/router"
@@ -11,10 +11,8 @@ import firebase_app from "../../firebase/config";
 import { getFirestore, getDoc, doc } from "firebase/firestore";
 
 const { Header, Footer, Content } = Layout;
-
 export default function Song() {
   const [loading, setLoading] = useState(true);
-  // const [lyrics, setLyrics] = useState('');
   const [kanji, setKanji] = useState('');
   const [info, setInfo] = useState([]);
   const router = useRouter()
@@ -78,7 +76,7 @@ export default function Song() {
       while (i< (list).length) {
         k=list[i]
         await fetch(`https://kanjiapi.dev/v1/kanji/${k}`).then(r => r.json()).then(r=> s=r);
-        myList.push({kanji:s.kanji, jlpt:s.jlpt, kun:s.kun_readings, onr:s.on_readings, meaning: s.meanings})
+        myList.push({kanji:s.kanji, jlpt:s.jlpt, kun:s.kun_readings, onr:s.on_readings, meaning: s.meanings, value: 0})
         i++
       }
       return myList
@@ -87,14 +85,25 @@ export default function Song() {
   const DisplayKanji = (list) => {
     return (
       info.map(item => (
-        <Card className={styles.card}>
+        <Card className={styles.card} onClick={()=>{
+          let color
+          item.value++
+          item.value == 1? color = 'yellow':color='white'
+          const div = document.querySelector('pre')
+          div.innerHTML = div.innerHTML.replaceAll(item.kanji,()=>{
+            return `<span style="background-color: ${color}">${item.kanji}</span>`
+          })
+          if(item.value >1){
+            item.value = 0
+          }
+        }}>
           <div className={styles.kanjiCard}>
             <h2 className={styles.cardL}>{item.kanji}</h2>
             <div className={styles.cardR}>
               <p>JLPT level:{item.jlpt}</p>
-              <p>On Yomi:{item.onr}</p>
-              <p>kun yomi:{item.kun}</p>
-              <p>Meanings: {JSON.stringify(item.meaning)}</p>
+              <p>On Yomi: {(item.onr).join('、')}</p>
+              <p>kun-yomi: {(item.kun).join('、')}</p>
+              <p>Meaning: {(item.meaning).join(', ')}</p>
             </div>
           </div>
         </Card>
@@ -125,23 +134,18 @@ export default function Song() {
       }
     } else {
       let temp = await getSong(params.songName, params.artistName)
-      // setLyrics(temp.lyrics)
-      setKanji(temp.kanji)
       document.getElementById('lyrics').innerHTML = temp.lyrics
-      // document.getElementById('lyrics').innerHTML = lyrics
-      document.getElementById('kanji').innerHTML = kanji
-      setLoading(false)
-      const d = await getKAPI(kanji)
+      const d = await getKAPI(temp.kanji)
       setInfo(d)
       console.log(info)
+      setLoading(false)
     }
   }
 
   useEffect(()=>{
     getData()
-    DisplayKanji(info)
   },[])
-
+  
   return (
     <>
     <Spin spinning={loading}>
@@ -149,22 +153,31 @@ export default function Song() {
       <title>だんだん</title>
       </Head>
       <Layout>
-      <Header className={styles.headerStyle} style={{backgroundColor:'purple'}}>
+      <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
         <Image alt='logo' height={50} src={logo} />
         <div>
-          <Link className={styles.bttnSpace} href={'/home/'}>Login</Link>
-          <Link className={styles.bttnSpace} href={'/register/'}>Register</Link>
+          <div></div>
+          <div></div>
         </div>
       </Header>
-        <div id='lyrics'></div>
-        <div id='kanji'></div>
-        <DisplayKanji/>
-        <article>
-        {/* <h1 className={utilStyles.headingXl}>{postData.title}</h1>
-        <div className={utilStyles.lightText}>
-        </div> */}
-        {/* <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} /> */}
-        </article>
+      <div className={styles.bar}></div>
+      <h1>{title}</h1>
+      <h4>{artist}</h4>
+      <div className={styles.lbody}>
+        <Card style={{width:'33%'}}>
+          <pre id='lyrics' style={{fontSize:'15px'}}></pre>
+        </Card>
+        <Card style={{width:'33%'}}>
+          <form>
+            <input style={{height:'100vh', width:'100%'}} type='text' id='songName' name='songName'/>
+            <button type='submit'>Save</button>  
+          </form>
+        </Card>
+        <iframe style={{width:'33%'}} src='https://jisho.org/' ></iframe>
+      </div>
+        <Row>
+          <DisplayKanji/>
+        </Row>
         <Footer className={styles.footerStyle}>
         <Row>
           {/* <Col span={8}>temp</Col> */}
