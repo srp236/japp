@@ -7,7 +7,7 @@ import logo from '../../public/images/logo_red.png'
 import React, { useState } from 'react'
 import firebase_app from "../firebase/config";
 import { getFirestore, getDoc, doc } from "firebase/firestore";
-import { Layout, Row, Col, Spin } from 'antd';
+import { Layout, Row, Col, Spin, notification } from 'antd';
 
 const { Header, Footer, Content } = Layout;
 

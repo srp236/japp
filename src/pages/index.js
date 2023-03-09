@@ -19,7 +19,7 @@ export default function Main() {
       <Header className={styles.headerStyle}>
         <Image alt='logo' height={50} src={logo} />
           <div>
-            <Link className={styles.bttnSpace} href={'/home/'}>Login</Link>
+            <Link className={styles.bttnSpace} href={'/login/'}>Login</Link>
             <Link className={styles.bttnSpace} href={'/register/'}>Register</Link>
           </div>
       </Header>

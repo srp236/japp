@@ -14,25 +14,6 @@ import delField from '@/src/firebase/firestore/delField'
 
 const { Header, Footer, Content } = Layout;
 
-//   const storeCard = async (set, kanjichar, meaning) => {
-//     const data = {[kanjichar]:{kanji: kanjichar, def: meaning}}
-//     const { result, error } = await addData('flashcards', set, data)
-//     if (error) {
-//         return console.log(error)
-//     } else {
-//       console.log('card added to FS')
-//     }
-// }
-//   const delCard = async (set, kanjichar) => {
-//     const data = kanjichar
-//     const { result, error } = await delField('flashcards', set, data)
-//     if (error) {
-//         return console.log(error)
-//     } else {
-//       console.log('card removed')
-//     }
-// }
-
 export default function Song() {
   const [loading, setLoading] = useState(true);
   const [info, setInfo] = useState([]);
@@ -79,6 +60,26 @@ export default function Song() {
     return myList
   }
 
+  const storeCard = async (set, kanjichar, meaning) => {
+    const data = {[kanjichar]:{kanji: kanjichar, def: meaning}}
+    const { result, error } = await addData('flashcards', set, data)
+    if (error) {
+        return console.log(error)
+    } else {
+      console.log('card added to FS')
+    }
+  }
+
+  const delCard = async (set, kanjichar) => {
+    const data = kanjichar
+    const { result, error } = await delField('flashcards', set, data)
+    if (error) {
+        return console.log(error)
+    } else {
+      console.log('card removed')
+    }
+  }
+
   const KanjiList = () => {
     return (
       info.map(item=>(
@@ -86,11 +87,9 @@ export default function Song() {
           <div className={styles.star}><Checkbox className={styles.ckbox} onChange={(e)=>{
             e.target.checked?storeCard('samp', item.kanji, item.meaning):delCard('samp', item.kanji)
           }}></Checkbox></div>
-          {/* <Checkbox onChange={onChange}></Checkbox> */}
-          <div className={styles.star} onClick={(e)=>{
+          {/* <div className={styles.star} onClick={(e)=>{
             storeCard('samp',item.kanji, item.meaning)
-
-          }}><StarOutlined style={{fontSize:'20px'}} /></div>
+          }}><StarOutlined style={{fontSize:'20px'}} /></div> */}
           <div className={styles.kanjiCard}>
             <h2 onClick={()=>{
               let color
@@ -103,6 +102,7 @@ export default function Song() {
               if(item.value >1){
                 item.value = 0
               }
+
             }} 
           className={styles.cardL}>{item.kanji}</h2>
             <div className={styles.cardR}>
@@ -150,7 +150,9 @@ export default function Song() {
       </Head>
       <Layout>
       <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
-        <Image alt='logo' height={50} src={logo} />
+        <div onClick={()=>{router.push('/home')}}>
+          <Image alt='logo' height={50} src={logo} />
+        </div>
         <div>
           <div></div>
           <div></div>
@@ -161,9 +163,9 @@ export default function Song() {
       <h4>{artist}</h4>
       <div className={styles.lbody}>
         <Card style={{width:'33%',}}>
-          <pre id='lyrics' style={{fontSize:'15px'}}></pre>
+          <pre id='lyrics' style={{fontSize:'15px',}}></pre>
         </Card> 
-        <Card id='kr' style={{width:'33%',height:'1300px',overflow:'scroll'}}>
+        <Card id='kr' style={{width:'33%',overflow:'scroll'}}>
           <KanjiList/>
         </Card>
         <iframe title='jisho' style={{width:'33%'}} src='https://jisho.org/'></iframe>
