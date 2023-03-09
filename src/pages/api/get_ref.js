@@ -10,7 +10,7 @@ async function getLyricRef(songName, artistName) {
         return document.querySelector(".searchResult__title").querySelector("a").getAttribute("href")
     })
     await browser.close()
-    return 0
+    return lyricRef
   } catch (error) {
       return 1
   }

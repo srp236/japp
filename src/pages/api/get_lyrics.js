@@ -4,22 +4,22 @@ import addData from '@/src/firebase/firestore/addData'
 let myLyrics;
 let myKanji;
 
-async function getLyricRef(songName, artistName) {
-  try {
-    const url = `https://utaten.com/search?sort=popular_sort_asc&artist_name=${artistName}&title=${songName}&beginning=&body=&lyricist=&composer=&sub_title=&tag=&show_artists=1`;
-    const browser = await chromium.puppeteer.launch()
-    const page = await browser.newPage();
-    await page.goto(url, {waitUntil:'load', timeout: 0})
-    const lyricRef = await page.evaluate(() => {
-        return document.querySelector(".searchResult__title").querySelector("a").getAttribute("href")
-    })
-    await browser.close()
-    return lyricRef
-  } catch (error) {
-      console.log(error)
-      return 1
-  }
-}
+// async function getLyricRef(songName, artistName) {
+//   try {
+//     const url = `https://utaten.com/search?sort=popular_sort_asc&artist_name=${artistName}&title=${songName}&beginning=&body=&lyricist=&composer=&sub_title=&tag=&show_artists=1`;
+//     const browser = await chromium.puppeteer.launch()
+//     const page = await browser.newPage();
+//     await page.goto(url, {waitUntil:'load', timeout: 0})
+//     const lyricRef = await page.evaluate(() => {
+//         return document.querySelector(".searchResult__title").querySelector("a").getAttribute("href")
+//     })
+//     await browser.close()
+//     return lyricRef
+//   } catch (error) {
+//       console.log(error)
+//       return 1
+//   }
+// }
 
 async function getLyrics(url) {
     const browser = await chromium.puppeteer.launch()
@@ -59,18 +59,6 @@ const isKanji = (str) => {
     return kanjiList
 }
 
-// const storeKanji = async () => {
-//     let kid = (await getCount('kanji')).toString()
-//     console.log('trying to store my kanji pllzlzzz')
-//     for(const k in myKanji)
-//     {   
-//         await addData('kanji', (await getCount('kanji')).toString(), {id:kid, char: myKanji[k]})
-//         kanjiIndex.push(kid)
-//         kid++
-//     }
-//     return kanjiIndex
-// }
-
 const storeLyrics = async (songName, artistName) => {
     const data = {[songName]:{kanji:myKanji, lyrics:myLyrics}}
     const { result, error } = await addData('lyrics', artistName, data)
@@ -80,14 +68,14 @@ const storeLyrics = async (songName, artistName) => {
     }
 }
 
-async function Lyrics(songName, artistName) {
+async function Lyrics(songName, artistName, lyricRef) {
     try {
         let baseUrl = 'https://utaten.com'
-        const lyric_ref = await getLyricRef(songName, artistName)
-        if(lyric_ref == 1){
-          return 1
-        }
-        var url = baseUrl + lyric_ref
+        // const lyric_ref = await getLyricRef(songName, artistName)
+        // if(lyric_ref == 1){
+        //   return 1
+        // }
+        var url = baseUrl + lyricRef
         myLyrics = await getLyrics(url)
         myKanji = isKanji(myLyrics)
         
@@ -101,5 +89,6 @@ async function Lyrics(songName, artistName) {
 export default function handler(req, res) {
     const song = req.body.songName
     const artist = req.body.artistName
-    Lyrics(song, artist).then((value)=>{console.log(`this is the returned error ${value}`);res.json({data:value})})
+    const ref = req.body.lyricRef
+    Lyrics(song, artist, ref).then((value)=>{res.json({data:value})})
 }

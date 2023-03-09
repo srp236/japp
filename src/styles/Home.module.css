@@ -118,8 +118,8 @@
 .lbody {
   display: flex;
   flex-direction: row;
-  /* justify-content: space-evenly; */
   width: 100%;
+  height: auto;
 }
 
 .bar{
@@ -128,4 +128,12 @@
   background-color: red;
 }
 
+.star {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+}
 
+.ckbox {
+  color: brown;
+}

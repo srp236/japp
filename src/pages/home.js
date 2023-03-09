@@ -10,27 +10,6 @@ import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { Layout, Row, Col, Spin } from 'antd';
 
 const { Header, Footer, Content } = Layout;
-// async function getFSLyrics(songName, artistName) {
-//   const db = getFirestore(firebase_app)
-//   let docRef = doc(db, 'lyrics', artistName);
-//   try {
-//     const response = await getDoc(docRef);
-//     const result = response.data()[songName]
-//     return result;
-//   } catch (error) {
-//     console.log('artist not in database')
-//     return undefined
-//   }
-  // const artistRef = collection(db, "lyrics");
-  // // const songRef = doc(db, 'lyrics', artistName)
-  // const q = query(collection(db, "lyrics"), where("title", "==", songName));
-  // const querySnapshot = await getDocs(q);
-  // console.log(querySnapshot)
-  // querySnapshot.forEach((doc) => {
-  //   console.log(doc.id, " => ", doc.data());
-  // });
-  // console.log('ok?')
-// }
 
 async function getSong(songName, artistName) {
   const db = getFirestore(firebase_app)
@@ -63,8 +42,9 @@ async function getLyricRef(songName, artistName) {
     const response = await fetch(endpoint, options)
     const result = await response.json()
 
-    if(result === 0){
-      return 0
+    if(result.data != 1){
+      console.log(result.data)
+      return result.data
     } else {
       return 1
     }
@@ -94,9 +74,9 @@ export default function Home() {
     let temp2;
 
     if(temp !== undefined){
-      router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName}})
+      router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:0}})
     } else if ((temp2 = await getLyricRef(data.songName, data.artistName)) !== 1) {
-      router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName}})
+      router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:temp2}})
     } else {
       setLoading(false)
       document.getElementById('message').innerHTML= 'Song not avaialbe. Please try another request'
