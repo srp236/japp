@@ -2,17 +2,89 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image'
-import { Layout, Row, Col, Spin, Card, Checkbox } from 'antd';
+import { Layout, Row, Col, Spin, Card, Menu, Dropdown, Space} from 'antd';
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../../public/images/logo_red.png'
 import { useRouter } from "next/router"
 import React, { useState, useEffect } from 'react'
-import { LinkedinFilled, StarOutlined, StarFilled, LeftOutlined } from '@ant-design/icons';
+import { EditOutlined, MoreOutlined } from '@ant-design/icons';
 import addData from '@/src/firebase/firestore/addData'
-import getData from '@/src/firebase/firestore/getData'
+import { getData, getAllDocs} from '@/src/firebase/firestore/getData'
 import delField from '@/src/firebase/firestore/delField'
 
 const { Header, Footer, Content } = Layout;
+
+const flashCardDoc = async (k,m) => {
+  const request = await getAllDocs('flashcards',)
+  request.map((it=>{
+    let i=items.length
+    items.push({label:it, key: i,})
+  }))
+}
+
+const items = [
+  // {
+  //   type: 'divider',
+  // },
+  // {
+  //   label:'new +',
+  //   key:0
+  // }
+];
+
+flashCardDoc()
+
+export function Dropdwn({kanji, meaning}) {
+  return (
+    <Dropdown
+    overlayStyle={{width:'fit-content'}}
+    menu={{items:items, selectable:true, onClick:(e)=>{
+      if(items[e.key].label == 'new +'){
+        console.log('creating a new set')
+        console.log(e)
+      } else {
+        getData('flashcards',items[e.key].label).then((res)=>{
+          if(res.result.data()[kanji] == undefined){
+            storeCard(items[e.key].label,kanji,meaning)
+            console.log('card added to set')
+        }
+        else{
+          delCard(items[e.key].label,kanji)
+          console.log('card removed from set')
+        }
+      })
+      }
+    }}}
+    trigger={['click']}
+  >
+    <a onClick={(e) => e.preventDefault()}>
+      <Space>
+        <MoreOutlined style={{color:'red', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>
+      </Space>
+    </a>
+  </Dropdown>
+  )
+}
+
+const storeCard = async (set, kanjichar, meaning) => {
+  const data = {[kanjichar]:{kanji: kanjichar, def: meaning}}
+  const { result, error } = await addData('flashcards', set, data)
+  if (error) {
+      return console.log(error)
+  } else {
+    console.log('card added to FS')
+  }
+}
+
+const delCard = async (set, kanjichar) => {
+  const data = kanjichar
+  const { result, error } = await delField('flashcards', set, data)
+  if (error) {
+      return console.log(error)
+  } else {
+    console.log('card removed')
+  }
+}
 
 export default function Song() {
   const [loading, setLoading] = useState(true);
@@ -60,36 +132,27 @@ export default function Song() {
     return myList
   }
 
-  const storeCard = async (set, kanjichar, meaning) => {
-    const data = {[kanjichar]:{kanji: kanjichar, def: meaning}}
-    const { result, error } = await addData('flashcards', set, data)
-    if (error) {
-        return console.log(error)
-    } else {
-      console.log('card added to FS')
-    }
-  }
-
-  const delCard = async (set, kanjichar) => {
-    const data = kanjichar
-    const { result, error } = await delField('flashcards', set, data)
-    if (error) {
-        return console.log(error)
-    } else {
-      console.log('card removed')
-    }
-  }
-
   const KanjiList = () => {
+    const mItems = [
+      {
+        label: <a href="https://www.antgroup.com">1st menu item</a>,
+        key: '0',
+      },
+      {
+        label: <a href="https://www.aliyun.com">2nd menu item</a>,
+        key: '1',
+      },
+      {
+        type: 'divider',
+      },
+      {
+        label: '3rd menu item',
+        key: '3',
+      },
+    ];
     return (
       info.map(item=>(
         <Card className={styles.card}>
-          <div className={styles.star}><Checkbox className={styles.ckbox} onChange={(e)=>{
-            e.target.checked?storeCard('samp', item.kanji, item.meaning):delCard('samp', item.kanji)
-          }}></Checkbox></div>
-          {/* <div className={styles.star} onClick={(e)=>{
-            storeCard('samp',item.kanji, item.meaning)
-          }}><StarOutlined style={{fontSize:'20px'}} /></div> */}
           <div className={styles.kanjiCard}>
             <h2 onClick={()=>{
               let color
@@ -102,15 +165,15 @@ export default function Song() {
               if(item.value >1){
                 item.value = 0
               }
-
             }} 
-          className={styles.cardL}>{item.kanji}</h2>
+            className={styles.cardL}>{item.kanji}</h2>
             <div className={styles.cardR}>
               <p>JLPT level:{item.jlpt}</p>
               <p>On Yomi: {(item.onr).join('、')}</p>
               <p>kun-yomi: {(item.kun).join('、')}</p>
               <p>Meaning: {(item.meaning).join(', ')}</p>
             </div>
+            <Dropdwn kanji={item.kanji} meaning={item.meaning}></Dropdwn>
           </div>
         </Card>
       ))
@@ -165,7 +228,7 @@ export default function Song() {
         <Card style={{width:'33%',}}>
           <pre id='lyrics' style={{fontSize:'15px',}}></pre>
         </Card> 
-        <Card id='kr' style={{width:'33%',overflow:'scroll'}}>
+        <Card id='may' style={{width:'33%',overflow:'scroll',}}>
           <KanjiList/>
         </Card>
         <iframe title='jisho' style={{width:'33%'}} src='https://jisho.org/'></iframe>
@@ -196,3 +259,4 @@ export default function Song() {
 }
 
 //height:document.getElementById('lyrics').offsetHeight + 50
+
