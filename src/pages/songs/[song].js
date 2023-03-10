@@ -1,5 +1,5 @@
 import { getData, getAllDocs} from '@/src/firebase/firestore/getData'
-import { Layout, Row, Col, Spin, Card, Dropdown } from 'antd';
+import { Layout, Row, Col, Spin, Card, Dropdown, message } from 'antd';
 import delField from '@/src/firebase/firestore/delField'
 import logo from '../../../public/images/logo_red.png'
 import addData from '@/src/firebase/firestore/addData'
@@ -24,7 +24,10 @@ const flashCardDoc = async () => {
 flashCardDoc()
 
 export function Dropdwn({kanji, meaning}) {
+  const [messageApi, contextHolder] = message.useMessage();
   return (
+    <>
+    {contextHolder}
     <Dropdown
       overlayStyle={{width:'fit-content'}}
       menu={{items:items, selectable:true, onClick:(e)=>{
@@ -35,14 +38,15 @@ export function Dropdwn({kanji, meaning}) {
           getData('flashcards',items[e.key].label).then((res)=>{
             if(res.result.data()[kanji] == undefined){
               storeCard(items[e.key].label,kanji,meaning)
-              console.log('card added to set')
+              messageApi.open({content:`${kanji} added to "${items[e.key].label}"`, type:'success', duration:3});
             }
             else{
               confirm(`Are you sure you want to remove ${kanji} from "${items[e.key].label}"`)?delCard(items[e.key].label,kanji):console.log('user canceled')
             }
           })}}}} trigger={['click']}>
-      <MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'red', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>
+      <MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>
     </Dropdown>
+    </>
   )
 }
 
@@ -157,7 +161,7 @@ export default function Song() {
 
   return (
     <>
-    <Spin spinning={loading}>
+    <Spin size='large' spinning={loading}>
       <Head>
       <title>だんだん</title>
       </Head>
