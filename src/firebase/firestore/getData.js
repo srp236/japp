@@ -1,5 +1,5 @@
 import firebase_app from "../config";
-import { getFirestore, doc, getDoc, collection, getDocs  } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot, query, where  } from "firebase/firestore";
 
 const db = getFirestore(firebase_app)
 export async function getData(colllection, id) {
@@ -22,7 +22,26 @@ export async function getAllDocs(colllection) {
   let docList = []
   const querySnapshot = await getDocs(collection(db, colllection));
   querySnapshot.forEach((doc) => {
+    // docList.push(doc.id)
     docList.push({id:doc.id, data:Object.keys(doc.data())})
   });
   return docList
 }
+
+export function docsQuery(colllection, test){
+  // const test = []
+  const q = query(collection(db, colllection))
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      test.push({id:doc.id, data:Object.keys(doc.data())});
+      // console.log(test)
+    })
+    // console.log("test: ", test.join(", "))
+  })
+  return test
+}
+// export async function docsQuery(colllection, id){
+//   const unsub = onSnapshot(doc(db, colllection, id), (doc => {
+//     console.log("Current data: ", doc.data())
+//   }))
+// }
