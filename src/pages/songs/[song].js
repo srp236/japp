@@ -1,12 +1,12 @@
 import { getData } from '@/src/firebase/firestore/getData'
-import { Layout, Row, Col, Spin, Card, Dropdown, message } from 'antd';
+import { Layout, Spin, Card } from 'antd';
 import logo from '../../../public/images/logo_red.png'
 import React, { useState, useEffect } from 'react'
 import styles from '@/src/styles/Home.module.css'
 import { useRouter } from "next/router"
 import Image from 'next/image'
 import Head from 'next/head';
-import { getKanjiInfo, KanjiList } from '@/src/utils/methods';
+import { getKanjiInfo, KanjiList, CommonFoot } from '@/src/utils/methods';
 
 const { Header, Footer } = Layout;
 
@@ -92,21 +92,8 @@ export default function Song() {
         </Card>
         <iframe title='jisho' style={{width:'33%'}} src='https://jisho.org/'></iframe>
       </div>
-      <Footer className={styles.footerStyle}>
-        <Row>
-          {/* <Col span={8}>temp</Col> */}
-          {/* <Col span={8}>temp</Col> */}
-          <Col span={8} offset={8} >temp</Col>
-          <Col span={8}>
-            <h3>Connect with Me</h3>
-            <ul>
-              <li>Github</li>
-              <li>LinkedIN</li>
-            </ul>
-          </Col>
-        </Row>
-        <Image alt='' height={60} className={styles.footerImg} src={logo}/>
-      </Footer>
+      <CommonFoot/>
+      
       </Layout>
     </Spin>
     </>

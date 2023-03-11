@@ -3,20 +3,19 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../public/images/logo_red.png'
+import logo2 from '../../public/images/logo.png'
 import React, { useState } from 'react'
-import firebase_app from "../firebase/config";
-import { getFirestore, getDoc, doc } from "firebase/firestore";
-import { Layout, Row, Col, Spin, notification } from 'antd';
+import { Layout, Row, Col, Spin, notification, Card } from 'antd';
+import { getData } from '@/src/firebase/firestore/getData'
+import { isKanji, getKanjiInfo, KanjiList, FlashSets } from '../utils/methods'
 
 const { Header, Footer, Content } = Layout;
 
-async function getSong(songName, artistName) {
-  const db = getFirestore(firebase_app)
-  let docRef = doc(db, 'lyrics', artistName);
+async function getSong(title, artist) {
   try {
-    const response = await getDoc(docRef);
-    const result = response.data()[songName]
-    return result;
+    const request = await getData('lyrics', artist)
+    const response = request.result.data()[title]
+    return response;
   } catch (error) {
     console.log('artist not in database')
     return undefined
@@ -52,7 +51,9 @@ async function getLyricRef(songName, artistName) {
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
   const [loading, setLoading] = useState(false);
+  const [kcard, setkcard] = useState(false);
   const router = useRouter()
+  let list2 = []
 
   const openNotificationWithIcon = (type) => {
     api[type]({
@@ -90,6 +91,24 @@ export default function Home() {
       openNotificationWithIcon('error')      
     }
   }
+
+  const extractK = async (event) => {
+    setLoading(true)
+    event.preventDefault()
+
+    let x = document.forms["extractForm"]["userText"].value;
+    if (x == "") {
+      alert("Please enter text to extract");
+      setLoading(false)
+      return false;
+    } 
+
+    const list = isKanji(event.target.userText.value)
+    list2 = await getKanjiInfo(list)
+    setkcard(list2)
+    setLoading(false)
+  }
+
   return <>
   {contextHolder}
     <Head>
@@ -101,30 +120,40 @@ export default function Home() {
     <Layout>
       <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
         <Image alt='logo' height={50} src={logo} />
-        <div>
-          <div></div>
-          <div></div>
-        </div>
       </Header>
       <div className={styles.bar}></div>
       <Content>
         <Spin spinning={loading}>
-          <h1>Search a Song</h1>
-          <form className={styles.songForm} name='songForm' onSubmit={handleSubmit}>
-            <label>Song Name</label>
-            <input type='text' id='songName' name='songName'/>
-            <label>Artist Name</label>
-            <input type='text' id='artistName' name='artistName'/>
-            <button type='submit'>Submit</button>  
-          </form>
-          <div id='message'></div>
-          <div className={styles.space}></div>
+          <Card className={styles.card}>
+            <h1>Search a Song</h1>
+            <form className={styles.songForm} name='songForm' onSubmit={handleSubmit}>
+              <label>Song Name</label>
+              <input type='text' id='songName' name='songName'/>
+              <label>Artist Name</label>
+              <input type='text' id='artistName' name='artistName'/>
+              <button type='submit'>Submit</button>  
+            </form>            
+          </Card>
+          <Card className={styles.card}>
+            <h1>Kanji Extractor 3000</h1>
+            <form className={styles.songForm} name='extractForm' onSubmit={extractK}>
+              <label>Text</label>
+              <input type='text' id='userText' name='userText'/>
+              <button type='submit'>Submit</button>  
+            </form>
+            <div className={styles.repo}>
+              {kcard?<KanjiList info={kcard}/>:<div></div>}
+            </div>
+          </Card>
+          <Card className={styles.card}>
+            <h1>FlashCard Sets</h1>
+            <FlashSets/>
+          </Card>
+          {/* <div className={styles.space}></div> */}
         </Spin>
       </Content>
       <Footer className={styles.footerStyle}>
         <Row>
-          {/* <Col span={8}>temp</Col> */}
-          {/* <Col span={8}>temp</Col> */}
           <Col span={8} offset={8} >temp</Col>
           <Col span={8}>
             <h3>Connect with Me</h3>
@@ -134,7 +163,7 @@ export default function Home() {
             </ul>
           </Col>
         </Row>
-        <Image alt='' height={60} className={styles.footerImg} src={logo}/>
+        <Image alt='' height={60} className={styles.footerImg} src={logo2}/>
       </Footer>
     </Layout>
   </>

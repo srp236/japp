@@ -5,8 +5,11 @@ import { getAllDocs, docsQuery } from '../firebase/firestore/getData';
 import { MoreOutlined } from '@ant-design/icons';
 import firebase_app from "../firebase/config";
 import { getFirestore, collection, onSnapshot, query } from "firebase/firestore";
+import styles from '@/src/styles/Home.module.css'
+import logo from '../../public/images/logo.png'
 
 const db = getFirestore(firebase_app)
+const { Header, Footer } = Layout;
 
 export const isKanji = (str) => {
 	const kanjiList = []
@@ -49,46 +52,20 @@ export async function getKanjiInfo(list) {
 	return myList
 }
 
-export function Dropdwn({kanji, meaning, items}) {
-  const [messageApi, contextHolder] = message.useMessage();
-
-  return (
-    <>
-    {contextHolder}
-    <Dropdown
-      overlayStyle={{width:'fit-content'}}
-      menu={{items:items, selectable:true, onClick:(e)=>{
-        if(items[e.key].label == 'new +'){
-          console.log('creating a new set')
-          console.log(e)
-        } else {
-          getData('flashcards',items[e.key].label).then((res)=>{
-            if(res.result.data()[kanji] == undefined){
-              storeCard(items[e.key].label,kanji,meaning)
-              messageApi.open({content:`${kanji} added to "${items[e.key].label}"`, type:'success', duration:3});
-            }
-            else{
-              confirm(`Are you sure you want to remove ${kanji} from "${items[e.key].label}"`)?delCard(items[e.key].label,kanji):console.log('user canceled')
-            }
-          })}}}} trigger={['click']}>
-      <MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>
-    </Dropdown>
-    </>
-  )
-}
-
 let test = [];
 const items = [];
+const myp = [];
 
 const flashCardDoc = async () => {
   const request = await getAllDocs('flashcards')
   request.map((it=>{
     let i=items.length
     items.push({label:it.id, key: i,})
+    myp.push({label:it.id, key: i,})
   }))
 }
-
 flashCardDoc()
+// console.log(items)
 
 const q = query(collection(db, 'flashcards'))
 const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -96,6 +73,29 @@ const unsubscribe = onSnapshot(q, (querySnapshot) => {
     test.push({id:doc.id, data:Object.keys(doc.data())});
   })
 })
+console.log(myp)
+export function FlashSets() {
+	return (
+		// myp.map(val => {
+			<Card>
+				HIIIIIIIs
+			</Card>
+		// })
+		// items.forEach(element => {
+		// 	<Card>
+		// 		HIIII
+		// 	</Card>
+		// 	// {console.log('wow')}
+		// })
+	
+		// test.map(wow=>{
+		// 	{console.log(wow)}
+		// 	<Card>
+		// 		{wow.label}
+		// 	</Card>
+		// })
+	)
+}
 
 export function Drop({kanji, meaning}) {
   const [messageApi, contextHolder] = message.useMessage();
@@ -119,7 +119,7 @@ export function Drop({kanji, meaning}) {
               else {
                 storeCard(items[e.key].label,kanji,meaning)
                 messageApi.open({content:`${kanji} added to "${items[e.key].label}"`, type:'success', duration:3});
-                test =[]
+                test = []
               }
             }
           });
@@ -130,7 +130,7 @@ export function Drop({kanji, meaning}) {
   )
 }
 
-export const KanjiList = ({info, styles}) => {
+export const KanjiList = ({info}) => {
 	return (
 		info.map(item=>(
 			<Card className={styles.card} key={item.key}>
@@ -155,5 +155,25 @@ export const KanjiList = ({info, styles}) => {
 				</div>
 			</Card>
 		))
+	)
+}
+
+export function CommonFoot() {
+	return (
+		<Footer className={styles.footerStyle}>
+			<img loading='eager' src={logo} alt='logo'/>
+			
+		{/* <Image alt='' height={60} className={styles.footerImg} src={logo}/> */}
+		<Row>
+			<Col span={8} offset={8} >temp</Col>
+			<Col span={8}>
+				<h3>Connect with Me</h3>
+				<ul>
+					<li>Github</li>
+					<li>LinkedIN</li>
+				</ul>
+			</Col>
+		</Row>
+	</Footer>
 	)
 }
