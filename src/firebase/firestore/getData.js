@@ -22,7 +22,7 @@ export async function getAllDocs(colllection) {
   let docList = []
   const querySnapshot = await getDocs(collection(db, colllection));
   querySnapshot.forEach((doc) => {
-    docList.push(doc.id)
+    docList.push({id:doc.id, data:Object.keys(doc.data())})
   });
   return docList
 }
