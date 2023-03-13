@@ -83,21 +83,37 @@
   color: white;
 }
 
-.footerImg {
-  /* bottom: 25px;
-  left: 25px;
-  position: absolute; */
-}
-
-/* card componenents for kanji */
+/* card componenents */
 .card {
   margin: 15px 10px;
+}
+
+.homeCard {
+  margin: 15px 10px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow-y: scroll;
+  /* overflow-y: hidden;
+  overflow-x: hidden; */
+}
+
+.flashCard {
+  margin: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  /* align-items: center; */
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
 }
 
 .kanjiCard{
   display: flex;
   flex-direction: row;
   height: 150px;
+  width: 400px;
 }
 
 .cardL {
@@ -154,3 +170,37 @@
 
 
 /* class="ant-spin-dot ant-spin-dot-spin" */
+
+/* .ig {
+  position: relative;
+} */
+
+.igtext {
+  position: absolute;
+  left: 20px;
+  top: 80px;
+  height: 200;
+}
+
+.cardInt:hover {
+  background-color: rgba(230, 26, 57, 0.079);
+}
+
+.flashCard a {
+  color: rgb(230,26,57);
+}
+
+.homeCard::-webkit-scrollbar {
+  width: 12px;
+  display: none;
+}
+
+.homeCard::-webkit-scrollbar-track {
+  /* background: green;        color of the tracking area */
+}
+
+.homeCard::-webkit-scrollbar-thumb {
+  background-color: blue;    /* color of the scroll thumb */
+  border-radius: 30px;       /* roundness of the scroll thumb */
+  /* border: 3px solid rgb(255, 255, 255);  creates padding around scroll thumb */
+}

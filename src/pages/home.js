@@ -4,10 +4,11 @@ import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../public/images/logo_red.png'
 import logo2 from '../../public/images/logo.png'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Layout, Row, Col, Spin, notification, Card } from 'antd';
 import { getData } from '@/src/firebase/firestore/getData'
-import { isKanji, getKanjiInfo, KanjiList, FlashSets } from '../utils/methods'
+import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets } from '../utils/methods'
+import { MoreOutlined, EllipsisOutlined } from '@ant-design/icons';
 
 const { Header, Footer, Content } = Layout;
 
@@ -52,8 +53,12 @@ export default function Home() {
   const [api, contextHolder] = notification.useNotification();
   const [loading, setLoading] = useState(false);
   const [kcard, setkcard] = useState(false);
+  const [s, sets] = useState(false);
   const router = useRouter()
   let list2 = []
+  let yu
+  let tu = flashCardDoc()
+  // console.log(tu)
 
   const openNotificationWithIcon = (type) => {
     api[type]({
@@ -109,6 +114,12 @@ export default function Home() {
     setLoading(false)
   }
 
+  useEffect(()=>{
+    flashCardDoc().then(e=>{
+      sets(e)
+    })
+  },[])
+
   return <>
   {contextHolder}
     <Head>
@@ -136,18 +147,20 @@ export default function Home() {
           </Card>
           <Card className={styles.card}>
             <h1>Kanji Extractor 3000</h1>
-            <form className={styles.songForm} name='extractForm' onSubmit={extractK}>
-              <label>Text</label>
-              <input type='text' id='userText' name='userText'/>
+            <form className={styles.songForm} name='extractForm' onSubmit={extractK} >
+              <textarea rows='5' style={{width:'500px', height:'100px', textAlign:'start', resize:'none', }} type='text' id='userText' name='userText' placeholder='Enter text to have the kanji extracted...'/>
               <button type='submit'>Submit</button>  
             </form>
-            <div className={styles.repo}>
+            <div className={styles.homeCard}>
               {kcard?<KanjiList info={kcard}/>:<div></div>}
             </div>
           </Card>
           <Card className={styles.card}>
             <h1>FlashCard Sets</h1>
-            <FlashSets/>
+            <div className={styles.homeCard}>
+              {/* {s?<FlashSets list={s}/>:<div></div>} */}
+              <FlashSets />
+            </div>
           </Card>
           {/* <div className={styles.space}></div> */}
         </Spin>

@@ -88,7 +88,7 @@ export default function Song() {
           <pre id='lyrics' style={{fontSize:'15px', marginTop:'20px'}}></pre>
         </Card> 
         <Card id='may' style={{width:'33%',overflow:'scroll',}}>
-          <KanjiList info={info} styles={styles}/>
+          <KanjiList info={info}/>
         </Card>
         <iframe title='jisho' style={{width:'33%'}} src='https://jisho.org/'></iframe>
       </div>

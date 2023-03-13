@@ -1,8 +1,8 @@
 import firebase_app from "../config";
-import { getFirestore, doc, setDoc, updateDoc, deleteField } from "firebase/firestore";
+import { getFirestore, doc, setDoc, updateDoc, deleteField, deleteDoc } from "firebase/firestore";
 
 const db = getFirestore(firebase_app)
-export default async function delField(colllection, id, data) {
+export async function delField(colllection, id, data) {
     let result = null;
     let error = null;
 
@@ -14,4 +14,9 @@ export default async function delField(colllection, id, data) {
     }
 
     return { result, error };
+}
+
+export async function delDoc(colllection, id) {
+    const result = await deleteDoc(doc(db, colllection, id));
+    console.log(result)
 }
