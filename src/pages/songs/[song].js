@@ -93,7 +93,6 @@ export default function Song() {
         <iframe title='jisho' style={{width:'33%'}} src='https://jisho.org/'></iframe>
       </div>
       <CommonFoot/>
-      
       </Layout>
     </Spin>
     </>

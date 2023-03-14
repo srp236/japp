@@ -1,17 +1,29 @@
 import {addData, createDoc} from '@/src/firebase/firestore/addData'
 import {delField, delDoc} from '@/src/firebase/firestore/delField'
 import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal } from 'antd';
-import { getAllDocs, docsQuery } from '../firebase/firestore/getData';
-import { MoreOutlined, EllipsisOutlined, SettingOutlined, CaretRightOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import firebase_app from "../firebase/config";
+import { getAllDocs } from '../firebase/firestore/getData';
+import { MoreOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
-import { getFirestore, collection, onSnapshot, query } from "firebase/firestore";
 import styles from '@/src/styles/Home.module.css'
-import logo from '../../public/images/logo.png'
 
-const db = getFirestore(firebase_app)
-const { Header, Footer } = Layout;
+const { Footer } = Layout;
+
+let items = [{id:'New Card', data:[]}];
+
+export const flashCardDoc = async () => {
+	let plz = [{id:'New Card', data:[]}]
+  const request = await getAllDocs('flashcards')
+  request.map((it=>{
+		let i=plz.length
+		if(!plz.includes({label:it.id, key: i,})){
+			plz.push({label:it.id, key: i, id:it.id, data:it.data})
+		}
+  }))
+	items = plz
+	plz = []
+}
+flashCardDoc()
 
 export const isKanji = (str) => {
 	const kanjiList = []
@@ -36,10 +48,8 @@ export const storeCard = async (set, kanjichar, meaning) => {
 }
 
 export const storeDoc = async (set, data) => {
-	const { result, error } = await addData('flashcards', set, data)
-  if (error) {
-      return console.log(error)
-  }
+	const result = await createDoc('flashcards', set, data)
+	console.log(result)
 }
 
 export const delCard = async (set, kanjichar) => {
@@ -61,40 +71,9 @@ export async function getKanjiInfo(list) {
 	return myList
 }
 
-let test = [];
-let wow = [{id:'New Card', data:[]}];
-const items = [];
-
-export const flashCardDoc = async () => {
-	const plz = [];
-  const request = await getAllDocs('flashcards')
-  request.map((it=>{
-    let i=items.length
-    items.push({label:it.id, key: i,})
-    plz.push({id:it.id, key: i, data: it.data})
-  }))
-	return plz
-}
-
-flashCardDoc()
-
-const q = query(collection(db, 'flashcards'))
-// let num = 0
-const unsubscribe = onSnapshot(q, (querySnapshot) => {
-	querySnapshot.forEach((doc) => {
-		test.push({id:doc.id, data:Object.keys(doc.data())});
-		wow.push({id:doc.id, data:Object.keys(doc.data())});
-		// num ++
-  })
-})
-
 export const FlashSets = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const router = useRouter()
-	const showModal = () => {
-		console.log('yuhh')
-    setIsModalOpen(true);
-  };
   const handleOk = (e) => {
 		let x = document.forms["createsetform"]["setTitle"].value
 		let y = document.forms["createsetform"]["kanji"].value
@@ -113,7 +92,7 @@ export const FlashSets = () => {
     setIsModalOpen(false);
   };
 	return (
-		wow.map(element => (
+		items.map(element => (
 			element.id == 'New Card'?<div>
 			<Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{setIsModalOpen(true)}}>
 			{/* <Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{showModal; console.log('i pressed it')}}> */}
@@ -148,9 +127,8 @@ export const FlashSets = () => {
 		))
 	)
 }
-wow=[{id:'New Card', data:[]}]
+
 export function FlashDrop({set}) {
-  const [messageApi, contextHolder] = message.useMessage();
 	const router = useRouter()
 	const menuItems = [
 		{
@@ -164,7 +142,6 @@ export function FlashDrop({set}) {
 	]
   return (
     <>
-    {contextHolder}
     <Dropdown
       overlayStyle={{width:'fit-content'}}
       menu={{items:menuItems, selectable:true, onClick:(e)=>{
@@ -185,34 +162,38 @@ export function FlashDrop({set}) {
   )
 }
 
-export function Drop({kanji, meaning, icon, data}) {
+export function Drop({kanji, meaning, icon, dataaa}) {
   const [messageApi, contextHolder] = message.useMessage();
-
+	let nDat = {}
   return (
     <>
     {contextHolder}
     <Dropdown
       overlayStyle={{width:'fit-content'}}
       menu={{items:items, selectable:true, onClick:(e)=>{
+				if(dataaa){
+					dataaa.forEach(element => {
+						Object.assign(nDat, {[element.kanji]:{kanji: element.kanji, def: element.meaning}})
+					});
+					storeDoc(items[e.key].label,nDat)
+				} else {
 					if(items[e.key].label == 'new +'){
 						console.log('creating a new set')
 						console.log(e)
 					} else {
-						test.forEach(element => {
+						items.forEach(element => {
 							if(element.id == items[e.key].label){
 								if((element.data).indexOf(kanji) > -1){
 									confirm(`Are you sure you want to remove ${kanji} from "${items[e.key].label}"`)?delCard(items[e.key].label,kanji):console.log('user canceled')
-									test = []
 								} 
 								else {
 									storeCard(items[e.key].label,kanji,meaning)
 									messageApi.open({content:`${kanji} added to "${items[e.key].label}"`, type:'success', duration:3});
-									test = []
 								}
 							}
 						});
 					}
-				
+				}
 				}}} trigger={['click']}>
       {icon}
     </Dropdown>
@@ -223,10 +204,7 @@ export function Drop({kanji, meaning, icon, data}) {
 export const KanjiList = ({info}) => {
 	return (
 		<>
-		<Drop kanji={''} meaning={''} icon={<Button>+ Add List to Set</Button>} data={info}></Drop>
-		{/* <Button onClick={()=>{
-			
-		}} ><p>+ Add List to Set</p></Button> */}
+		<Drop kanji={''} meaning={''} icon={<Button>+ Add List to Set</Button>} dataaa={info}></Drop>
 		{info.map(item=>(
 			<Card className={styles.card} key={item.key}>
 				<div className={styles.kanjiCard}>
@@ -246,7 +224,7 @@ export const KanjiList = ({info}) => {
 						<p>On Yomi: {(item.onr).join('、')}</p>
 						<p>Meaning: {(item.meaning).join(', ')}</p>
 					</div>
-					<Drop kanji={item.kanji} meaning={item.meaning} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} data=''></Drop>
+					<Drop kanji={item.kanji} meaning={item.meaning} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} dataaa=''></Drop>
 				</div>
 			</Card>
 		))}
@@ -256,10 +234,8 @@ export const KanjiList = ({info}) => {
 
 export function CommonFoot() {
 	return (
-		<Footer className={styles.footerStyle}>
-			<img loading='eager' src={logo} alt='logo'/>
-			
-		{/* <Image alt='' height={60} className={styles.footerImg} src={logo}/> */}
+		<Footer className={styles.footerStyle}>			
+		<Image alt='' height={60} className={styles.footerImg} src="/images/logo.png"/>
 		<Row>
 			<Col span={8} offset={8} >temp</Col>
 			<Col span={8}>

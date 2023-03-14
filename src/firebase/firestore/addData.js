@@ -1,5 +1,5 @@
 import firebase_app from "../config";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, writeBatch } from "firebase/firestore";
 
 const db = getFirestore(firebase_app)
 export async function addData(colllection, id, data) {
@@ -18,5 +18,6 @@ export async function addData(colllection, id, data) {
 }
 
 export async function createDoc(colllection, id, data) {
-    await setDoc(doc(db, colllection, id), data)
+    const response = await setDoc(doc(db, colllection, id), data,{merge: true})
+    return response
 }
