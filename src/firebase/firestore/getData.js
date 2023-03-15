@@ -10,7 +10,6 @@ export async function getData(colllection, id) {
 
   try {
       result = await getDoc(docRef);
-      // console.log(result.data())
   } catch (e) {
       error = e;
   }
@@ -22,7 +21,6 @@ export async function getAllDocs(colllection) {
   let docList = []
   const querySnapshot = await getDocs(collection(db, colllection));
   querySnapshot.forEach((doc) => {
-    // docList.push(doc.id)
     docList.push({id:doc.id, data:Object.keys(doc.data())})
   });
   return docList

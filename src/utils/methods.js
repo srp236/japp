@@ -120,7 +120,7 @@ export const FlashSets = () => {
 				</div>
 			</div>}>
 				<div style={{display:'flex', flexDirection:'row', justifyContent:'center'}} >
-					<a onClick={()=>{console.log('i clickked')}}><CaretRightOutlined/></a>
+					<a onClick={()=>{router.push({pathname:`/study/${element.id}`})}}><CaretRightOutlined/></a>
 				</div>
 				<FlashDrop set={element}></FlashDrop>
 			</Card>
@@ -234,18 +234,18 @@ export const KanjiList = ({info}) => {
 
 export function CommonFoot() {
 	return (
-		<Footer className={styles.footerStyle}>			
-		<Image alt='' height={60} className={styles.footerImg} src="/images/logo.png"/>
-		<Row>
-			<Col span={8} offset={8} >temp</Col>
-			<Col span={8}>
-				<h3>Connect with Me</h3>
-				<ul>
-					<li>Github</li>
-					<li>LinkedIN</li>
-				</ul>
-			</Col>
-		</Row>
-	</Footer>
+		<Footer className={styles.footerStyle}>
+        <Row>
+          <Col span={8} offset={8} >temp</Col>
+          <Col span={8}>
+            <h3>Connect with Me</h3>
+            <ul>
+              <li>Github</li>
+              <li>LinkedIN</li>
+            </ul>
+          </Col>
+        </Row>
+        <Image alt='' height={60} className={styles.footerImg} src="/images/logo.png"/>
+      </Footer>
 	)
 }
