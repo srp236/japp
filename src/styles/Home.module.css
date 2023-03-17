@@ -24,7 +24,8 @@
 .landing {
   padding: 0px 0px;
   display: flex;
-  height: 770px;
+  height: 70vh;
+  /* height: 770px; */
   background: linear-gradient(to bottom, rgb(230,26,57), white);
   border: none;
   justify-content: center;
@@ -77,7 +78,7 @@
 /* page footer consistent across pages */
 .footerStyle {
   background-color: rgb(230,26,57);
-  height: 300px;
+  height: 200px;
   position:relative;
   bottom: 0px;
   color: white;

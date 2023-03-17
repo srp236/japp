@@ -26,16 +26,15 @@ export async function getAllDocs(colllection) {
   return docList
 }
 
-export function docsQuery(colllection, test){
-  // const test = []
+export function docsQuery(colllection){
+  let test = []
   const q = query(collection(db, colllection))
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
     querySnapshot.forEach((doc) => {
       test.push({id:doc.id, data:Object.keys(doc.data())});
-      // console.log(test)
     })
-    // console.log("test: ", test.join(", "))
   })
+  console.log(test)
   return test
 }
 // export async function docsQuery(colllection, id){

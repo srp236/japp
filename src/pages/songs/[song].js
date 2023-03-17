@@ -7,14 +7,16 @@ import { useRouter } from "next/router"
 import Image from 'next/image'
 import Head from 'next/head';
 import { getKanjiInfo, KanjiList, CommonFoot } from '@/src/utils/methods';
-
+import { useAuth} from '@/src/utils/AuthUserContext';
+import { flashCardDoc } from '@/src/utils/methods';
 const { Header, Footer } = Layout;
 
 export default function Song() {
   const router = useRouter()
   const {query: { title, artist, fstat }} = router 
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [info, setInfo] = useState([]);
+  const { authUser, loading } = useAuth();
 
   async function scrapeData(ref, songN, artistN) {
     const data = {
@@ -46,7 +48,7 @@ export default function Song() {
       document.getElementById('lyrics').innerHTML = response.lyrics
       const kanjiInfo = await getKanjiInfo(response.kanji)
       setInfo(kanjiInfo)
-      setLoading(false)
+      // setLoading(false)
     } else {
       const res = await scrapeData(fstat, title, artist)
       if(res == 0){
@@ -55,20 +57,31 @@ export default function Song() {
         document.getElementById('lyrics').innerHTML = response.lyrics
         const kanjiInfo = await getKanjiInfo(response.kanji)
         setInfo(kanjiInfo)
-        setLoading(false)
+        // setLoading(false)
       }
     }
   }
 
   useEffect(()=>{
     getLyricsKanji()
-  },[router.query])
+    if(!loading && !authUser){
+      router.push('/')
+    }
+  },[router.query, authUser,loading])
+
+  let name =''
+  let uid =''
+  if(authUser){
+    name = authUser.name
+    uid = authUser.uid
+    flashCardDoc(uid)
+  }
 
   return (
     <>
-    <Spin size='large' spinning={loading}>
+    <Spin size='large' spinning={false}>
       <Head>
-      <title>だんだん</title>
+      <title>歌詞</title>
       </Head>
       <Layout>
       <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
@@ -82,15 +95,15 @@ export default function Song() {
       </Header>
       <div className={styles.bar}></div>
       <div className={styles.lbody}>
-        <Card style={{width:'33%',}}>
+        <Card style={{width:'30%',}}>
           <h1>{title}</h1>
           <h4>{artist}</h4>
           <pre id='lyrics' style={{fontSize:'15px', marginTop:'20px'}}></pre>
         </Card> 
-        <Card id='may' style={{width:'33%',overflow:'scroll',}}>
+        <Card id='may' style={{width:'40%',overflow:'scroll',}}>
           <KanjiList info={info}/>
         </Card>
-        <iframe title='jisho' style={{width:'33%'}} src='https://jisho.org/'></iframe>
+        <iframe title='jisho' style={{width:'35%'}} src='https://jisho.org/'/>
       </div>
       <CommonFoot/>
       </Layout>

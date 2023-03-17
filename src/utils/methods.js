@@ -1,29 +1,36 @@
 import {addData, createDoc} from '@/src/firebase/firestore/addData'
 import {delField, delDoc} from '@/src/firebase/firestore/delField'
 import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal } from 'antd';
-import { getAllDocs } from '../firebase/firestore/getData';
+import { docsQuery, getAllDocs, getData } from '../firebase/firestore/getData';
 import { MoreOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import styles from '@/src/styles/Home.module.css'
-
+import { useAuth } from './AuthUserContext';
 const { Footer } = Layout;
 
 let items = [{id:'New Card', data:[]}];
+let wp = docsQuery('studyList')
 
-export const flashCardDoc = async () => {
+export const flashCardDoc = async (user) => {
 	let plz = [{id:'New Card', data:[]}]
-  const request = await getAllDocs('flashcards')
-  request.map((it=>{
-		let i=plz.length
-		if(!plz.includes({label:it.id, key: i,})){
+	const request = wp
+	// const request = await getAllDocs('studyList')
+	const req = await getData('users',user)
+	const userSet = req.result.data()['listRef']
+	if(!userSet){
+		return
+	}
+	request.map((it=>{
+		if(userSet.indexOf(it.id) > -1){
+			let i=plz.length
 			plz.push({label:it.id, key: i, id:it.id, data:it.data})
 		}
-  }))
+	}))
 	items = plz
 	plz = []
 }
-flashCardDoc()
+console.log(items)
 
 export const isKanji = (str) => {
 	const kanjiList = []
@@ -41,7 +48,7 @@ export const isKanji = (str) => {
 
 export const storeCard = async (set, kanjichar, meaning) => {
   const data = {[kanjichar]:{kanji: kanjichar, def: meaning}}
-  const { result, error } = await addData('flashcards', set, data)
+  const { result, error } = await addData('studyList', set, data)
   if (error) {
       return console.log(error)
   }
@@ -71,7 +78,7 @@ export async function getKanjiInfo(list) {
 	return myList
 }
 
-export const FlashSets = () => {
+export const FlashSets = (user) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const router = useRouter()
   const handleOk = (e) => {
@@ -83,9 +90,14 @@ export const FlashSets = () => {
       return false;
     } 
 		const data = {[y]:{kanji: y, def: z}}
-		createDoc('flashcards',x, data).then(e=>{
-			setIsModalOpen(false);
-			router.reload()
+		getData('users', user.user).then(async (e)=>{
+			let userSet = e.result.data()['listRef']
+			userSet?userSet.push(x):userSet = [x]
+			await addData('users',user.user,{'listRef':userSet})
+			createDoc('studyList',x, data).then(e=>{
+				setIsModalOpen(false);
+				router.reload()
+			})
 		})
   };
   const handleCancel = () => {
@@ -122,13 +134,13 @@ export const FlashSets = () => {
 				<div style={{display:'flex', flexDirection:'row', justifyContent:'center'}} >
 					<a onClick={()=>{router.push({pathname:`/study/${element.id}`})}}><CaretRightOutlined/></a>
 				</div>
-				<FlashDrop set={element}></FlashDrop>
+				<FlashDrop set={element} 	user={user}></FlashDrop>
 			</Card>
 		))
 	)
 }
 
-export function FlashDrop({set}) {
+export function FlashDrop({set, user}) {
 	const router = useRouter()
 	const menuItems = [
 		{
@@ -147,9 +159,12 @@ export function FlashDrop({set}) {
       menu={{items:menuItems, selectable:true, onClick:(e)=>{
 					switch (menuItems[e.key].label) {
 						case 'delete':
-							delDoc('flashcards', set.id).then(e=>{
-									router.reload()
-								})
+							getData('users', user.user).then(async (e)=>{
+								let userSet = e.result.data()['listRef']
+								let x = userSet.pop()
+								await addData('users',user.user,{'listRef':userSet})
+								delDoc('studyList', set.id).then(e=>{router.reload()})
+							})
 							break;
 						case 'edit':
 							console.log('hhi  edit')
