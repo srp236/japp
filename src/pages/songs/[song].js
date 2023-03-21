@@ -1,4 +1,4 @@
-import { getData } from '@/src/firebase/firestore/getData'
+import { getData, getDocuQuery } from '@/src/firebase/firestore/getData'
 import { Layout, Spin, Card } from 'antd';
 import logo from '../../../public/images/logo_red.png'
 import React, { useState, useEffect } from 'react'
@@ -6,15 +6,14 @@ import styles from '@/src/styles/Home.module.css'
 import { useRouter } from "next/router"
 import Image from 'next/image'
 import Head from 'next/head';
-import { getKanjiInfo, KanjiList, CommonFoot } from '@/src/utils/methods';
+import { KanjiList, CommonFoot } from '@/src/utils/methods';
 import { useAuth} from '@/src/utils/AuthUserContext';
-import { flashCardDoc } from '@/src/utils/methods';
-const { Header, Footer } = Layout;
+const { Header } = Layout;
 
 export default function Song() {
   const router = useRouter()
   const {query: { title, artist, fstat }} = router 
-  // const [loading, setLoading] = useState(true);
+  const [sloading, setsLoading] = useState(true);
   const [info, setInfo] = useState([]);
   const { authUser, loading } = useAuth();
 
@@ -46,40 +45,44 @@ export default function Song() {
       const request = await getData('lyrics', artist)
       const response = request.result.data()[title]
       document.getElementById('lyrics').innerHTML = response.lyrics
-      const kanjiInfo = await getKanjiInfo(response.kanji)
-      setInfo(kanjiInfo)
-      // setLoading(false)
+      const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
+      setInfo(request2)
+      setsLoading(false)
     } else {
       const res = await scrapeData(fstat, title, artist)
       if(res == 0){
         const request = await getData('lyrics', artist)
         const response = request.result.data()[title]
         document.getElementById('lyrics').innerHTML = response.lyrics
-        const kanjiInfo = await getKanjiInfo(response.kanji)
-        setInfo(kanjiInfo)
-        // setLoading(false)
+        const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
+        setInfo(request2)
+        setsLoading(false)
       }
     }
   }
 
   useEffect(()=>{
-    getLyricsKanji()
+    setsLoading(true)
     if(!loading && !authUser){
       router.push('/')
     }
   },[router.query, authUser,loading])
 
-  let name =''
-  let uid =''
-  if(authUser){
-    name = authUser.name
-    uid = authUser.uid
-    flashCardDoc(uid)
-  }
+  useEffect(()=>{
+    getLyricsKanji()
+  },[])
+
+  // let name =''
+  // let uid =''
+  // if(authUser){
+  //   name = authUser.name
+  //   uid = authUser.uid
+  //   flashCardDoc(uid)
+  // }
 
   return (
     <>
-    <Spin size='large' spinning={false}>
+    <Spin size='large' spinning={sloading}>
       <Head>
       <title>歌詞</title>
       </Head>
@@ -87,10 +90,6 @@ export default function Song() {
       <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
         <div onClick={()=>{router.push('/home')}}>
           <Image alt='logo' height={50} src={logo} />
-        </div>
-        <div>
-          <div></div>
-          <div></div>
         </div>
       </Header>
       <div className={styles.bar}></div>
@@ -103,7 +102,8 @@ export default function Song() {
         <Card id='may' style={{width:'40%',overflow:'scroll',}}>
           <KanjiList info={info}/>
         </Card>
-        <iframe title='jisho' style={{width:'35%'}} src='https://jisho.org/'/>
+        <iframe title='dictionary' src='https://jisho.org/' ></iframe>
+        {/* <iframe title='jisho' style={{width:'35%'}} src='https://jisho.org/'/> */}
       </div>
       <CommonFoot/>
       </Layout>

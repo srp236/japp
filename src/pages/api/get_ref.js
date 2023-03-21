@@ -5,7 +5,7 @@ async function getLyricRef(songName, artistName) {
     const url = `https://utaten.com/search?sort=popular_sort_asc&artist_name=${artistName}&title=${songName}&beginning=&body=&lyricist=&composer=&sub_title=&tag=&show_artists=1`;
     const browser = await chromium.puppeteer.launch()
     const page = await browser.newPage();
-    await page.goto(url, {waitUntil:'load', timeout: 0})
+    await page.goto(url)
     const lyricRef = await page.evaluate(() => {
         return document.querySelector(".searchResult__title").querySelector("a").getAttribute("href")
     })

@@ -26,6 +26,25 @@ export async function getAllDocs(colllection) {
   return docList
 }
 
+export async function getAllDocID(colllection) {
+  let docList = []
+  const querySnapshot = await getDocs(collection(db, colllection));
+  querySnapshot.forEach((doc) => {
+    docList.push(doc.id)
+  });
+  return docList
+}
+
+export async function getDocuQuery(colllection, searchfield, searchType, searchVal) {
+  let result = []
+  const q = query(collection(db,colllection), where(searchfield, searchType, searchVal))
+  const querySnapshot = await getDocs(q)
+  querySnapshot.forEach((doc) => {
+    result.push(doc.data());
+  })
+  return result
+}
+
 export function docsQuery(colllection){
   let test = []
   const q = query(collection(db, colllection))
@@ -34,7 +53,6 @@ export function docsQuery(colllection){
       test.push({id:doc.id, data:Object.keys(doc.data())});
     })
   })
-  console.log(test)
   return test
 }
 // export async function docsQuery(colllection, id){

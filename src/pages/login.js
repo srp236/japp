@@ -14,17 +14,17 @@ const { Header, Content } = Layout;
 
 export default function Login() {
   const router = useRouter()
-  const [loading, setLoading] = useState(false);
+  const [loading, setsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   const handleLogin = (event) => {
-    setLoading(true)
+    setsLoading(true)
     event.preventDefault()
     let email = document.forms["loginForm"]["username"].value;
     let password = document.forms["loginForm"]["password"].value;
     if (email == "" || password == "") {
       alert("Please complete all fileds");
-      setLoading(false)
+      setsLoading(false)
       return false;
     }
     const auth = getAuth(app);
@@ -33,14 +33,14 @@ export default function Login() {
       const user = userCredential.user;
       console.log(user)
       router.push('/home')
-      setLoading(false)
+      setsLoading(false)
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       messageApi.open({content:errorCode, type:'error', duration:3});
       console.log(errorCode)
-      setLoading(false)
+      setsLoading(false)
     });
   } 
 

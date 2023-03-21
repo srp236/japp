@@ -4,12 +4,14 @@ import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../public/images/logo_red.png'
 import React, { useEffect, useState } from 'react'
-import { Layout, Spin, notification, Card, Button } from 'antd';
+import { Layout, Spin, notification, Card, Button, AutoComplete } from 'antd';
 import { getData } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../utils/methods'
 import { useAuth } from '../utils/AuthUserContext'
 import {Potta_One} from 'next/font/google'
-
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import firebase_app from "../firebase/config"
+const db = getFirestore(firebase_app)
 const pottaone = Potta_One({
   subsets:['latin'],
   weight: ['400']
@@ -54,13 +56,27 @@ async function getLyricRef(songName, artistName) {
     }
 }
 
+let options = []
+async function getTags(uid) {
+  let opt = []
+  const request = await getData('users',uid)
+  const userTags = request.result.data()['tags']
+  userTags.map(tag=>{
+    options.push({value: tag})
+  })
+  opt = [...new Set(options)]
+  options = opt
+}
+
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
-  // const [loading, setLoading] = useState(false);
+  const [sloading, setsLoading] = useState(false);
   const [kcard, setkcard] = useState(false);
+  const [tagCard, setTagCard] = useState(false);
   const router = useRouter()
   const { authUser, loading } = useAuth();
   let list2 = []
+  let optt = []
 
   const openNotificationWithIcon = (type) => {
     api[type]({
@@ -71,14 +87,14 @@ export default function Home() {
   };
 
   const handleSubmit = async (event) => {
-    // setLoading(true)
+    setsLoading(true)
     event.preventDefault()
 
     let x = document.forms["songForm"]["songName"].value;
     let y = document.forms["songForm"]["artistName"].value;
     if (x == "" || y == "") {
       alert("Please complete all fileds");
-      // setLoading(false)
+      setsLoading(false)
       return false;
     } 
     const data = {
@@ -94,26 +110,26 @@ export default function Home() {
     } else if ((temp2 = await getLyricRef(data.songName, data.artistName)) !== 1) {
       router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:temp2}})
     } else {
-      // setLoading(false)
+      setsLoading(false)
       openNotificationWithIcon('error')      
     }
   }
 
   const extractK = async (event) => {
-    // setLoading(true)
+    setsLoading(true)
     event.preventDefault()
 
     let x = document.forms["extractForm"]["userText"].value;
     if (x == "") {
       alert("Please enter text to extract");
-      // setLoading(false)
+      setsLoading(false)
       return false;
     } 
 
     const list = isKanji(event.target.userText.value)
     list2 = await getKanjiInfo(list)
     setkcard(list2)
-    // setLoading(false)
+    setsLoading(false)
   }
   let name =''
   let uid =''
@@ -127,6 +143,7 @@ export default function Home() {
     name = authUser.name
     uid = authUser.uid
     flashCardDoc(uid)
+    getTags(uid)
   }
 
   return (
@@ -145,8 +162,43 @@ export default function Home() {
       </Header>
       <div className={styles.bar}></div>
       <Content>
-        <Spin spinning={false}>
-          <h1>Welcome {name}</h1>
+        <Spin spinning={sloading}>
+          <h1>ようこそ {name}!</h1>
+          <div>
+            {/* <Card>
+              <AutoComplete
+              style={{ width: 200 }}
+                options={options}
+                placeholder='Search by tags'
+                filterOption={(inputValue, option)=>
+                option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                }
+                onSelect={ async (value)=>{
+                  let temp_list = []
+                  const q = query(collection(db,"kanji"), where("tags", "array-contains", value))
+                  const querySnapshot = await getDocs(q)
+                  console.log(value)
+                  // setTagCard(querySnapshot.docs)
+                  // console.log(tagCard)
+                  querySnapshot.forEach((doc) => {
+                    temp_list.push({[doc.id]:doc.data()})
+                    console.log(doc.id, "=>", doc.data())
+                  });
+                  setTagCard(temp_list)
+                }}
+              />
+              <div id='tag_results'>
+                {tagCard?<KanjiList info={tagCard}/>:<div></div>}
+              </div>
+            </Card> */}
+          </div>
+          {/* <Card className={styles.card}>
+            <form name='tagSearchForm'>
+              <label>Search</label>
+              <input></input>
+              <button type='submit'>Submit</button>
+            </form>
+          </Card> */}
           <Card className={styles.card}>
             <h1>Search a Song</h1>
             <form className={styles.songForm} name='songForm' onSubmit={handleSubmit}>
@@ -157,7 +209,7 @@ export default function Home() {
               <button type='submit'>Submit</button>  
             </form>            
           </Card>
-          <Card className={styles.card}>
+          {/* <Card className={styles.card}>
             <h1>Kanji Extractor 3000</h1>
             <form className={styles.songForm} name='extractForm' onSubmit={extractK} >
               <textarea rows='5' style={{width:'500px', height:'100px', textAlign:'start', resize:'none', }} type='text' id='userText' name='userText' placeholder='Enter text to have the kanji extracted...'/>
@@ -166,13 +218,13 @@ export default function Home() {
             <div className={styles.homeCard}>
               {kcard?<KanjiList info={kcard}/>:<div></div>}
             </div>
-          </Card>
-          <Card className={styles.card}>
+          </Card> */}
+          {/* <Card className={styles.card}>
             <h1>Study Sets</h1>
             <div className={styles.homeCard}>
               <FlashSets user={uid}/>
             </div>
-          </Card>
+          </Card> */}
         </Spin>
       </Content>
       <CommonFoot/>

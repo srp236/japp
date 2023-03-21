@@ -103,7 +103,7 @@
   margin: 15px 10px;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: flex-end;
   /* align-items: center; */
   width: 200px;
   height: 200px;

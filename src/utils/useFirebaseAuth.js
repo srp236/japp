@@ -10,21 +10,21 @@ const formatAuthUser = (user) => ({
 
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setsLoading] = useState(true);
 
 useEffect(() => {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
     if (user) {
       console.log('user innnn :)')
-      setLoading(true)
+      setsLoading(true)
       var formattedUser = formatAuthUser(user);
       setAuthUser(formattedUser);    
-      setLoading(false);
+      setsLoading(false);
     } else {
       console.log('user gonee :(')
       setAuthUser(null)
-      setLoading(false)
+      setsLoading(false)
       return;
     }
   });

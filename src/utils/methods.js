@@ -30,7 +30,6 @@ export const flashCardDoc = async (user) => {
 	items = plz
 	plz = []
 }
-console.log(items)
 
 export const isKanji = (str) => {
 	const kanjiList = []
@@ -54,14 +53,14 @@ export const storeCard = async (set, kanjichar, meaning) => {
   }
 }
 
-export const storeDoc = async (set, data) => {
-	const result = await createDoc('flashcards', set, data)
+export const storeDoc = async (coll,set, data) => {
+	const result = await createDoc(coll, set, data)
 	console.log(result)
 }
 
 export const delCard = async (set, kanjichar) => {
   const data = kanjichar
-  const { result, error } = await delField('flashcards', set, data)
+  const { result, error } = await delField('studyList', set, data)
   if (error) {
       return console.log(error)
   }
@@ -69,6 +68,7 @@ export const delCard = async (set, kanjichar) => {
 
 export async function getKanjiInfo(list) {
 	let i = 0, k, s, myList = []
+	//check if in list already, if in list, don't need to get info, just add new song reference to it
 	while (i< (list).length) {
 		k=list[i]
 		await fetch(`https://kanjiapi.dev/v1/kanji/${k}`).then(r => r.json()).then(r=> s=r);
@@ -190,7 +190,7 @@ export function Drop({kanji, meaning, icon, dataaa}) {
 					dataaa.forEach(element => {
 						Object.assign(nDat, {[element.kanji]:{kanji: element.kanji, def: element.meaning}})
 					});
-					storeDoc(items[e.key].label,nDat)
+					storeDoc('flashcards',items[e.key].label,nDat)
 				} else {
 					if(items[e.key].label == 'new +'){
 						console.log('creating a new set')
@@ -202,7 +202,9 @@ export function Drop({kanji, meaning, icon, dataaa}) {
 									confirm(`Are you sure you want to remove ${kanji} from "${items[e.key].label}"`)?delCard(items[e.key].label,kanji):console.log('user canceled')
 								} 
 								else {
+									console.log(element)
 									storeCard(items[e.key].label,kanji,meaning)
+									storeDoc('kanji','testt',{'kanji':kanji})
 									messageApi.open({content:`${kanji} added to "${items[e.key].label}"`, type:'success', duration:3});
 								}
 							}
@@ -235,8 +237,8 @@ export const KanjiList = ({info}) => {
 					className={styles.cardL}>{item.kanji}</h2>
 					<div className={styles.cardR}>
 						<p>JLPT level:{item.jlpt}</p>
-						<p>kun-yomi: {(item.kun).join('、')}</p>
-						<p>On Yomi: {(item.onr).join('、')}</p>
+						<p>kun-yomi: {(item.kunyomi).join('、')}</p>
+						<p>On Yomi: {(item.onyomi).join('、')}</p>
 						<p>Meaning: {(item.meaning).join(', ')}</p>
 					</div>
 					<Drop kanji={item.kanji} meaning={item.meaning} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} dataaa=''></Drop>
