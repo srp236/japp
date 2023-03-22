@@ -2,7 +2,6 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
-import logo from '../../public/images/logo_red.png'
 import React, { useEffect, useState } from 'react'
 import { Layout, Spin, notification, Card, Button, AutoComplete } from 'antd';
 import { getData } from '@/src/firebase/firestore/getData'
@@ -11,6 +10,9 @@ import { useAuth } from '../utils/AuthUserContext'
 import {Potta_One} from 'next/font/google'
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 import firebase_app from "../firebase/config"
+import { getAuth } from 'firebase/auth'
+import app from '../firebase/config'
+
 const db = getFirestore(firebase_app)
 const pottaone = Potta_One({
   subsets:['latin'],
@@ -67,14 +69,16 @@ async function getTags(uid) {
   opt = [...new Set(options)]
   options = opt
 }
+console.log(options)
 
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
   const [sloading, setsLoading] = useState(true);
   const [kcard, setkcard] = useState(false);
-  const [tagCard, setTagCard] = useState(false);
+  const [tags, setTags] = useState(false);
   const router = useRouter()
   const { authUser, loading } = useAuth();
+  const auth = getAuth(app);
   let list2 = [], optt = [], name = '', uid =''
   authUser?[name=authUser.name, uid = authUser.uid]:null
 
@@ -138,6 +142,7 @@ export default function Home() {
       name = authUser.name
       uid = authUser.uid
       flashCardDoc(authUser.uid).then(e=>{
+        getTags(uid)
         setsLoading(false)
       })
     }
@@ -154,15 +159,15 @@ export default function Home() {
     </Head>
     <Layout>
       <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
-        <Image alt='logo' height={50} src={logo} />
-        <Button onClick={()=>{signOut;router.push('/')}} >Log Out</Button>
+        <Image alt='logo' height={50} width={120} src='/images/logo_red.png' />
+        <Button onClick={()=>{auth.signOut();router.push('/')}} >Log Out</Button>
       </Header>
       <div className={styles.bar}></div>
       <Content>
         <Spin spinning={sloading}>
           <h1>ようこそ {name}!</h1>
           <div>
-            {/* <Card>
+            <Card>
               <AutoComplete
               style={{ width: 200 }}
                 options={options}
@@ -175,27 +180,20 @@ export default function Home() {
                   const q = query(collection(db,"kanji"), where("tags", "array-contains", value))
                   const querySnapshot = await getDocs(q)
                   console.log(value)
-                  // setTagCard(querySnapshot.docs)
-                  // console.log(tagCard)
+                  setTags(querySnapshot.docs)
+                  console.log(tags)
                   querySnapshot.forEach((doc) => {
                     temp_list.push({[doc.id]:doc.data()})
                     console.log(doc.id, "=>", doc.data())
                   });
-                  setTagCard(temp_list)
+                  setTags(temp_list)
                 }}
               />
               <div id='tag_results'>
-                {tagCard?<KanjiList info={tagCard}/>:<div></div>}
+                {tags?<KanjiList info={tags}/>:<div></div>}
               </div>
-            </Card> */}
+            </Card>
           </div>
-          {/* <Card className={styles.card}>
-            <form name='tagSearchForm'>
-              <label>Search</label>
-              <input></input>
-              <button type='submit'>Submit</button>
-            </form>
-          </Card> */}
           <Card className={styles.card}>
             <h1>Search a Song</h1>
             <form className={styles.songForm} name='songForm' onSubmit={handleSubmit}>

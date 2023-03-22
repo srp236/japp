@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../public/images/logo_red.png'
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Layout, Row, Col, Spin, notification, Card, message } from 'antd';
 import React, { useEffect, useState } from 'react'
-// import auth from '../firebase/config'
 import app from '../firebase/config'
 
 const { Header, Content } = Layout;
@@ -28,7 +27,7 @@ export default function Login() {
       return false;
     }
     const auth = getAuth(app);
-    const request = createUserWithEmailAndPassword(auth, email, password)
+    const request = signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
       console.log(user)

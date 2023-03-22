@@ -181,12 +181,15 @@ export function Drop({kanji, icon, dataaa, uid}) {
 }
 
 export const KanjiList = ({info, uid}) => {
-	// flashCardDoc(uid)
+	const [inputVisible, setInputVisible] = useState(false);
+	const [inputValue, setInputValue] = useState('')
+
 	return (
 		<>
 		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
 		{info.map(item=>(
-			<Card style={{width:'500px', margin:'20px 0px'}}>
+			<>
+			<Card key={info.indexOf(item)} style={{width:'500px', margin:'20px 0px'}}>
 				<div style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
 					<h2 onClick={()=>{
 						let color
@@ -204,11 +207,27 @@ export const KanjiList = ({info, uid}) => {
 						<p>kun-yomi: {(item.kunyomi).join('、')}</p>
 						<p>On Yomi: {(item.onyomi).join('、')}</p>
 						<p>Meaning: {(item.meaning).join(', ')}</p>
-						<p>Tags:{}</p>
+						<p>Tags:{item.tags?[(item.tags).map((tag)=>{
+							return (
+								<span key={tag}style={{display: 'inline-block'}}>
+									<Tag closable onClose={()=>{updateDataArray('kanji',item.kanji,'tags',tag, 'remove')}}>{tag}</Tag>
+								</span>
+							)
+						})]:''}
+						{inputVisible?<Input type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
+						onPressEnter={()=>{
+							(item.tags).push(inputValue)
+							setInputVisible(false);
+							setInputValue('');
+							updateDataArray('kanji',item.kanji,'tags',inputValue, 'add')
+						}}
+						/>:<Tag onClick={()=>{setInputVisible(true)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>}
+						</p>
 					</div>
 				</div>
 				<Drop kanji={item.kanji} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} dataaa='' uid={uid}></Drop>
 			</Card>
+			</>
 		))}
 		</>
 	)

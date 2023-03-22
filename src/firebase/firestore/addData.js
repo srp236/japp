@@ -28,13 +28,14 @@ export async function updateData(colllection, id, ref, data){
 export async function updateDataArray(colllection, id, data1, data2, type) {
     let result = null;
     let error = null;
-    console.log(type)
 
     try {
       type == 'add'?result = await updateDoc(doc(db, colllection, id), {[data1]:arrayUnion(data2)}):
       result = await updateDoc(doc(db, colllection, id), {[data1]:arrayRemove(data2)})
+      console.log(result)
     } catch (e) {
         error = e;
+        console.log(error)
     }
     return { result, error };
 }
