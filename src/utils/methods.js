@@ -1,34 +1,33 @@
-import {addData, createDoc} from '@/src/firebase/firestore/addData'
+import {addData, createDoc, updateDataArray, updateData, updateMultiDocs} from '@/src/firebase/firestore/addData'
 import {delField, delDoc} from '@/src/firebase/firestore/delField'
-import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal } from 'antd';
-import { docsQuery, getAllDocs, getData } from '../firebase/firestore/getData';
+import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal, Tag, Input } from 'antd';
+import { docsQuery, getAllDocs, getData, getDocuQuery } from '../firebase/firestore/getData';
 import { MoreOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import styles from '@/src/styles/Home.module.css'
-import { useAuth } from './AuthUserContext';
+
 const { Footer } = Layout;
+let items = [{label:'new +',id:'New Card', data:[], key:0}];
 
-let items = [{id:'New Card', data:[]}];
-let wp = docsQuery('studyList')
-
-export const flashCardDoc = async (user) => {
-	let plz = [{id:'New Card', data:[]}]
-	const request = wp
-	// const request = await getAllDocs('studyList')
-	const req = await getData('users',user)
-	const userSet = req.result.data()['listRef']
-	if(!userSet){
-		return
-	}
-	request.map((it=>{
-		if(userSet.indexOf(it.id) > -1){
-			let i=plz.length
-			plz.push({label:it.id, key: i, id:it.id, data:it.data})
-		}
-	}))
-	items = plz
-	plz = []
+export const flashCardDoc = async (uid) => {
+	let list1 = [{label:'new +',id:'New Card', data:[], key:0}]
+	let temp = []
+	const request = await getData('users', uid)
+	const response = request.result.data()['flashcardRefs']
+	const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
+	response.forEach(element => {
+		request2.forEach(element2 => {
+			if(element2.flashcardRef == element){
+				temp.push(element2.kanji)
+			}
+		});
+		let i=list1.length
+		list1.push({label:element, id:element, key:i, data:temp})
+		temp = []
+	});
+	items = list1
+	list1 = [{label:'new +',id:'New Card', data:[]}]
 }
 
 export const isKanji = (str) => {
@@ -45,30 +44,12 @@ export const isKanji = (str) => {
 	return kanjiList
 }
 
-export const storeCard = async (set, kanjichar, meaning) => {
-  const data = {[kanjichar]:{kanji: kanjichar, def: meaning}}
-  const { result, error } = await addData('studyList', set, data)
-  if (error) {
-      return console.log(error)
-  }
-}
-
-export const storeDoc = async (coll,set, data) => {
-	const result = await createDoc(coll, set, data)
-	console.log(result)
-}
-
-export const delCard = async (set, kanjichar) => {
-  const data = kanjichar
-  const { result, error } = await delField('studyList', set, data)
-  if (error) {
-      return console.log(error)
-  }
+export const storeCard = async (set, kanjichar) => {
+	await updateData('kanji', kanjichar, 'flashcardRef', set)
 }
 
 export async function getKanjiInfo(list) {
 	let i = 0, k, s, myList = []
-	//check if in list already, if in list, don't need to get info, just add new song reference to it
 	while (i< (list).length) {
 		k=list[i]
 		await fetch(`https://kanjiapi.dev/v1/kanji/${k}`).then(r => r.json()).then(r=> s=r);
@@ -83,21 +64,13 @@ export const FlashSets = (user) => {
 	const router = useRouter()
   const handleOk = (e) => {
 		let x = document.forms["createsetform"]["setTitle"].value
-		let y = document.forms["createsetform"]["kanji"].value
-		let z = document.forms["createsetform"]["meaning"].value
-		if (x == "" || y == "" || z == "") {
-      alert("Please complete all fileds");
+		if (x == "") {
+      alert("Enter name for new flashcard set");
       return false;
     } 
-		const data = {[y]:{kanji: y, def: z}}
-		getData('users', user.user).then(async (e)=>{
-			let userSet = e.result.data()['listRef']
-			userSet?userSet.push(x):userSet = [x]
-			await addData('users',user.user,{'listRef':userSet})
-			createDoc('studyList',x, data).then(e=>{
-				setIsModalOpen(false);
-				router.reload()
-			})
+		updateDataArray('users', user.user, "flashcardRefs", x, 'add').then(e=>{
+			setIsModalOpen(false)
+			router.reload()
 		})
   };
   const handleCancel = () => {
@@ -107,20 +80,14 @@ export const FlashSets = (user) => {
 		items.map(element => (
 			element.id == 'New Card'?<div>
 			<Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{setIsModalOpen(true)}}>
-			{/* <Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{showModal; console.log('i pressed it')}}> */}
 				<h3>
 					<PlusOutlined /> Create Set
 				</h3>
 			</Button>
 			<Modal title="Create New Flashcard Set" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
 				<form name='createsetform' style={{display:'flex', flexDirection:'column'}}>
-					<p>* you must add at least one card to the set to create it</p>
 					<label>Title of Set</label>
 					<input type='text' id='setTitle' name='setTitle'/>
-					<label>Kanji</label>
-					<input type='text' id='kanji' name='kanji'/>
-					<label>Text</label>
-					<input type='text' id='meaning' name='meaning'/>
 					{/* add tags option for sorting also allow for image selection amongst specific options or user opload */}
 				</form>
 			</Modal>
@@ -159,11 +126,11 @@ export function FlashDrop({set, user}) {
       menu={{items:menuItems, selectable:true, onClick:(e)=>{
 					switch (menuItems[e.key].label) {
 						case 'delete':
-							getData('users', user.user).then(async (e)=>{
-								let userSet = e.result.data()['listRef']
-								let x = userSet.pop()
-								await addData('users',user.user,{'listRef':userSet})
-								delDoc('studyList', set.id).then(e=>{router.reload()})
+							getDocuQuery('kanji','flashcardRef','==', set.id).then(e=>{
+								updateMultiDocs('kanji',e,'flashcardRef',null)
+								updateDataArray('users', user.user, "flashcardRefs", set.id, 'remove').then(e=>{
+									router.reload()
+								})
 							})
 							break;
 						case 'edit':
@@ -177,7 +144,7 @@ export function FlashDrop({set, user}) {
   )
 }
 
-export function Drop({kanji, meaning, icon, dataaa}) {
+export function Drop({kanji, icon, dataaa, uid}) {
   const [messageApi, contextHolder] = message.useMessage();
 	let nDat = {}
   return (
@@ -187,44 +154,40 @@ export function Drop({kanji, meaning, icon, dataaa}) {
       overlayStyle={{width:'fit-content'}}
       menu={{items:items, selectable:true, onClick:(e)=>{
 				if(dataaa){
-					dataaa.forEach(element => {
-						Object.assign(nDat, {[element.kanji]:{kanji: element.kanji, def: element.meaning}})
-					});
-					storeDoc('flashcards',items[e.key].label,nDat)
+					if(items[e.key].label == 'none'){
+						confirm(`Are you sure you want to remove the list from all flashcard sets?`)?updateMultiDocs('kanji', dataaa, 'flashcardRef', null):console.log('user canceled')
+					} else {
+						updateMultiDocs('kanji', dataaa, 'flashcardRef', items[e.key].label)
+					}
 				} else {
 					if(items[e.key].label == 'new +'){
 						console.log('creating a new set')
-						console.log(e)
 					} else {
-						items.forEach(element => {
-							if(element.id == items[e.key].label){
-								if((element.data).indexOf(kanji) > -1){
-									confirm(`Are you sure you want to remove ${kanji} from "${items[e.key].label}"`)?delCard(items[e.key].label,kanji):console.log('user canceled')
-								} 
-								else {
-									console.log(element)
-									storeCard(items[e.key].label,kanji,meaning)
-									storeDoc('kanji','testt',{'kanji':kanji})
-									messageApi.open({content:`${kanji} added to "${items[e.key].label}"`, type:'success', duration:3});
-								}
-							}
-						});
+						if((items[e.key].data).indexOf(kanji) > -1){
+							confirm(`Are you sure you want to remove ${kanji} from "${items[e.key].label}"`)?storeCard(null, kanji):console.log('user canceled')
+							flashCardDoc(uid)
+						} else {
+							messageApi.open({content:`${kanji} moved to "${items[e.key].label}"`, type:'success', duration:3});
+							storeCard(items[e.key].label,kanji)
+							flashCardDoc(uid)
+						}
 					}
 				}
-				}}} trigger={['click']}>
+			}}} trigger={['click']}>
       {icon}
     </Dropdown>
     </>
   )
 }
 
-export const KanjiList = ({info}) => {
+export const KanjiList = ({info, uid}) => {
+	// flashCardDoc(uid)
 	return (
 		<>
-		<Drop kanji={''} meaning={''} icon={<Button>+ Add List to Set</Button>} dataaa={info}></Drop>
+		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
 		{info.map(item=>(
-			<Card className={styles.card} key={item.key}>
-				<div className={styles.kanjiCard}>
+			<Card style={{width:'500px', margin:'20px 0px'}}>
+				<div style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
 					<h2 onClick={()=>{
 						let color
 						item.bl = !item.bl
@@ -233,16 +196,18 @@ export const KanjiList = ({info}) => {
 						div.innerHTML = div.innerHTML.replaceAll(item.kanji,()=>{
 							return `<span style="background-color: ${color}">${item.kanji}</span>`
 						})
-					}} 
-					className={styles.cardL}>{item.kanji}</h2>
-					<div className={styles.cardR}>
+					}}
+				className={styles.cardL}
+				>{item.kanji}</h2>
+					<div className={styles.cardR} >
 						<p>JLPT level:{item.jlpt}</p>
 						<p>kun-yomi: {(item.kunyomi).join('、')}</p>
 						<p>On Yomi: {(item.onyomi).join('、')}</p>
 						<p>Meaning: {(item.meaning).join(', ')}</p>
+						<p>Tags:{}</p>
 					</div>
-					<Drop kanji={item.kanji} meaning={item.meaning} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} dataaa=''></Drop>
 				</div>
+				<Drop kanji={item.kanji} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} dataaa='' uid={uid}></Drop>
 			</Card>
 		))}
 		</>
@@ -252,17 +217,17 @@ export const KanjiList = ({info}) => {
 export function CommonFoot() {
 	return (
 		<Footer className={styles.footerStyle}>
-        <Row>
-          <Col span={8} offset={8} >temp</Col>
-          <Col span={8}>
-            <h3>Connect with Me</h3>
-            <ul>
-              <li>Github</li>
-              <li>LinkedIN</li>
-            </ul>
-          </Col>
-        </Row>
-        <Image alt='' height={60} className={styles.footerImg} src="/images/logo.png"/>
-      </Footer>
+			<Row>
+				<Col span={8} offset={8} >temp</Col>
+				<Col span={8}>
+					<h3>Connect with Me</h3>
+					<ul>
+						<li>Github</li>
+						<li>LinkedIN</li>
+					</ul>
+				</Col>
+			</Row>
+			<Image alt='' height={60} className={styles.footerImg} src="/images/logo.png"/>
+		</Footer>
 	)
 }

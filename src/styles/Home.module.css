@@ -116,18 +116,28 @@
   height: 150px;
   width: 400px;
 }
-
+/* style={{height:'100%', width:'35%'}} */
 .cardL {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 30%;
   color: rgb(230,26,57);
   font-size: 100px;
-  width: 40%;
-  padding-bottom: 30px;
+  /* padding-bottom: 30px; */
 }
 
 .cardR {
+  padding-left: 20px;
   display: flex;
   flex-direction: column;
   width: 60%;
+  height:100%;
+  overflow-wrap: normal;
+  justify-content: center;
+  /* align-items: center; */
 }
 
 .lbody {

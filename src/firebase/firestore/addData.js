@@ -1,5 +1,5 @@
 import firebase_app from "../config";
-import { getFirestore, doc, setDoc, writeBatch, arrayUnion } from "firebase/firestore";
+import { getFirestore, doc, setDoc, writeBatch, arrayUnion, updateDoc, arrayRemove } from "firebase/firestore";
 
 const db = getFirestore(firebase_app)
 export async function addData(colllection, id, data) {
@@ -15,6 +15,37 @@ export async function addData(colllection, id, data) {
     }
 
     return { result, error };
+}
+
+export async function updateData(colllection, id, ref, data){
+  try {
+    result = await updateDoc(doc(db, colllection, id), {[ref]:data})
+  } catch (error) {
+    console.log('there was an error :(')
+  }
+}
+
+export async function updateDataArray(colllection, id, data1, data2, type) {
+    let result = null;
+    let error = null;
+    console.log(type)
+
+    try {
+      type == 'add'?result = await updateDoc(doc(db, colllection, id), {[data1]:arrayUnion(data2)}):
+      result = await updateDoc(doc(db, colllection, id), {[data1]:arrayRemove(data2)})
+    } catch (e) {
+        error = e;
+    }
+    return { result, error };
+}
+
+export async function updateMultiDocs(colllection, list, field, data){
+  const batch = writeBatch(db);
+  list.forEach(element => {
+    const ref = doc(db, colllection, element.kanji);
+    batch.update(ref, {[field]: data})
+  });
+  await batch.commit();
 }
 
 export async function createDoc(colllection, id, data) {

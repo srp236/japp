@@ -17,7 +17,7 @@ const pottaone = Potta_One({
   weight: ['400']
 })
 
-const { Header, Footer, Content } = Layout;
+const { Header, Content } = Layout;
 
 async function getSong(title, artist) {
   try {
@@ -70,13 +70,13 @@ async function getTags(uid) {
 
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
-  const [sloading, setsLoading] = useState(false);
+  const [sloading, setsLoading] = useState(true);
   const [kcard, setkcard] = useState(false);
   const [tagCard, setTagCard] = useState(false);
   const router = useRouter()
   const { authUser, loading } = useAuth();
-  let list2 = []
-  let optt = []
+  let list2 = [], optt = [], name = '', uid =''
+  authUser?[name=authUser.name, uid = authUser.uid]:null
 
   const openNotificationWithIcon = (type) => {
     api[type]({
@@ -125,26 +125,23 @@ export default function Home() {
       setsLoading(false)
       return false;
     } 
-
-    const list = isKanji(event.target.userText.value)
+    const list = isKanji(x)
     list2 = await getKanjiInfo(list)
     setkcard(list2)
     setsLoading(false)
   }
-  let name =''
-  let uid =''
   useEffect(()=>{
     if(!loading && !authUser){
       router.push('/')
     } 
+    if(authUser){
+      name = authUser.name
+      uid = authUser.uid
+      flashCardDoc(authUser.uid).then(e=>{
+        setsLoading(false)
+      })
+    }
   },[authUser,loading])
-
-  if(authUser){
-    name = authUser.name
-    uid = authUser.uid
-    flashCardDoc(uid)
-    getTags(uid)
-  }
 
   return (
   <>
@@ -209,7 +206,7 @@ export default function Home() {
               <button type='submit'>Submit</button>  
             </form>            
           </Card>
-          {/* <Card className={styles.card}>
+          <Card className={styles.card}>
             <h1>Kanji Extractor 3000</h1>
             <form className={styles.songForm} name='extractForm' onSubmit={extractK} >
               <textarea rows='5' style={{width:'500px', height:'100px', textAlign:'start', resize:'none', }} type='text' id='userText' name='userText' placeholder='Enter text to have the kanji extracted...'/>
@@ -218,13 +215,13 @@ export default function Home() {
             <div className={styles.homeCard}>
               {kcard?<KanjiList info={kcard}/>:<div></div>}
             </div>
-          </Card> */}
-          {/* <Card className={styles.card}>
-            <h1>Study Sets</h1>
+          </Card>
+          <Card className={styles.card}>
+            <h1>Flashcard Study Sets</h1>
             <div className={styles.homeCard}>
-              <FlashSets user={uid}/>
+              <FlashSets user={uid} />
             </div>
-          </Card> */}
+          </Card>
         </Spin>
       </Content>
       <CommonFoot/>
