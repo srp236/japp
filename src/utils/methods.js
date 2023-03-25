@@ -4,7 +4,7 @@ import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal, Tag, I
 import { docsQuery, getAllDocs, getData, getDocuQuery } from '../firebase/firestore/getData';
 import { MoreOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import styles from '@/src/styles/Home.module.css'
 
 const { Footer } = Layout;
@@ -146,7 +146,6 @@ export function FlashDrop({set, user}) {
 
 export function Drop({kanji, icon, dataaa, uid}) {
   const [messageApi, contextHolder] = message.useMessage();
-	let nDat = {}
   return (
     <>
     {contextHolder}
@@ -180,9 +179,18 @@ export function Drop({kanji, icon, dataaa, uid}) {
   )
 }
 
+
+
 export const KanjiList = ({info, uid}) => {
-	const [inputVisible, setInputVisible] = useState(false);
+	const [curr, setCurrent] = useState('');
 	const [inputValue, setInputValue] = useState('')
+	const inputRef = useRef(null);
+
+	useEffect(() => {
+    if (curr !='') {
+      inputRef.current?.focus();
+    }
+  }, [curr]);
 
 	return (
 		<>
@@ -207,21 +215,23 @@ export const KanjiList = ({info, uid}) => {
 						<p>kun-yomi: {(item.kunyomi).join('、')}</p>
 						<p>On Yomi: {(item.onyomi).join('、')}</p>
 						<p>Meaning: {(item.meaning).join(', ')}</p>
-						<p>Tags:{item.tags?[(item.tags).map((tag)=>{
+						<p>Tags: {item.tags?[(item.tags).map((tag)=>{
 							return (
 								<span key={tag}style={{display: 'inline-block'}}>
 									<Tag closable onClose={()=>{updateDataArray('kanji',item.kanji,'tags',tag, 'remove')}}>{tag}</Tag>
 								</span>
 							)
-						})]:''}
-						{inputVisible?<Input type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
+						})]:<div id='new tags'>{tagList}</div>}
+						{
+						curr == item.kanji?<Input type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
 						onPressEnter={()=>{
-							(item.tags).push(inputValue)
-							setInputVisible(false);
-							setInputValue('');
+							(item.tags).push(inputValue),
+							setCurrent('')
+							setInputValue(''),
 							updateDataArray('kanji',item.kanji,'tags',inputValue, 'add')
 						}}
-						/>:<Tag onClick={()=>{setInputVisible(true)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>}
+						/>:<Tag id='mt' onClick={()=>{setCurrent(item.kanji)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>
+						}
 						</p>
 					</div>
 				</div>

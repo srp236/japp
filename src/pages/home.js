@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import React, { useEffect, useState } from 'react'
 import { Layout, Spin, notification, Card, Button, AutoComplete } from 'antd';
-import { getData } from '@/src/firebase/firestore/getData'
+import { getData, getAllDocID } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../utils/methods'
 import { useAuth } from '../utils/AuthUserContext'
 import {Potta_One} from 'next/font/google'
@@ -12,6 +12,8 @@ import { getFirestore, collection, query, where, getDocs } from "firebase/firest
 import firebase_app from "../firebase/config"
 import { getAuth } from 'firebase/auth'
 import app from '../firebase/config'
+import { getDocuQuery } from '@/src/firebase/firestore/getData'
+import { updateMultiDocs } from '../firebase/firestore/addData'
 
 const db = getFirestore(firebase_app)
 const pottaone = Potta_One({
@@ -122,6 +124,7 @@ export default function Home() {
   const extractK = async (event) => {
     setsLoading(true)
     event.preventDefault()
+    let l1 = [], l2 = []
 
     let x = document.forms["extractForm"]["userText"].value;
     if (x == "") {
@@ -130,9 +133,34 @@ export default function Home() {
       return false;
     } 
     const list = isKanji(x)
-    list2 = await getKanjiInfo(list)
-    setkcard(list2)
-    setsLoading(false)
+
+    list.forEach(async element => {
+      let test = await getDocuQuery('kanji','kanji','==',element)
+      if(test.length != 0){
+        l1.push(test)
+        console.log('yayay')
+      } else {
+        console.log('mooo')
+        l2.push(test)
+      }
+    });
+    let l3 = await getKanjiInfo(l1)
+    
+
+
+    // let test = await getAllDocID('kanji')
+    // list.forEach(element => {
+    //   if(test.indexOf(element) > -1){
+    //     oldKanji.push(element)
+    //   } else {
+    //     newKanji.push(element)
+    //   }
+    // });
+
+    // list2 = await getKanjiInfo(list)
+    // setkcard(list2)
+    // setsLoading(false)
+    ///chnage logic herere plzzzzllzlzlzzl for card info
   }
   useEffect(()=>{
     if(!loading && !authUser){
@@ -211,7 +239,7 @@ export default function Home() {
               <button type='submit'>Submit</button>  
             </form>
             <div className={styles.homeCard}>
-              {kcard?<KanjiList info={kcard}/>:<div></div>}
+              {kcard?<KanjiList info={kcard} uid={uid}/>:<div></div>}
             </div>
           </Card>
           <Card className={styles.card}>

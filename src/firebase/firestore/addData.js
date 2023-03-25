@@ -32,7 +32,6 @@ export async function updateDataArray(colllection, id, data1, data2, type) {
     try {
       type == 'add'?result = await updateDoc(doc(db, colllection, id), {[data1]:arrayUnion(data2)}):
       result = await updateDoc(doc(db, colllection, id), {[data1]:arrayRemove(data2)})
-      console.log(result)
     } catch (e) {
         error = e;
         console.log(error)
@@ -56,14 +55,18 @@ export async function createDoc(colllection, id, data) {
 
 export async function createMultiDocs(list, songName, artistName, oldList) {
   const batch = writeBatch(db);
-  list.forEach(element => {
-    const ref = doc(db, "kanji", element.kanji);
-    batch.set(ref, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kun, 'onyomi':element.onr, 'meaning':element.meaning, 'bl':false, 'songRef':[`${songName} by ${artistName}`]});
-  });
-  oldList.forEach(element => {
-    const ref2 = doc(db, "kanji", element);
-    batch.update(ref2, {'songRef': arrayUnion(`${songName} by ${artistName}`)},)
-  });
-  
+  if(songName == null & artistName == null){
+    const ref3 = doc(db, "kanji", element.kanji);
+    batch.set(ref3, {})
+  } else {
+    list.forEach(element => {
+      const ref = doc(db, "kanji", element.kanji);
+      batch.set(ref, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kun, 'onyomi':element.onr, 'meaning':element.meaning, 'bl':false, 'songRef':[`${songName} by ${artistName}`], 'tags':[]});
+    });
+    oldList.forEach(element => {
+      const ref2 = doc(db, "kanji", element);
+      batch.update(ref2, {'songRef': arrayUnion(`${songName} by ${artistName}`)},)
+    });
+  }
   await batch.commit();
 }
