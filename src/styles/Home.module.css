@@ -296,3 +296,58 @@
   align-items: center;
   gap: 5rem;
 }
+
+.tltp {
+  position: absolute;
+  visibility: hidden;
+  /* z-index: 2; */
+  border: 1px solid black;
+  width: fit-content;
+  background-color: white;
+  padding: 2px 2px;
+}
+
+.highlightOptions {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#lyrics::selection {
+  background-color: blueviolet;
+}
+
+.gotta {
+  background-color: rgb(203, 203, 203);
+  color: black;
+}
+
+.gotta:hover {
+  background-color: grey;
+  color: white;
+}
+
+/* .pre::selection .tltp{
+  visibility: visible;
+} */
+
+/* .ty::selection {
+  visibility: visible;
+  background-color: red;
+} */
+
+/* .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+}
+
+.tooltip{
+  position: relative;
+}
+
+.tooltip::selection .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+} */
