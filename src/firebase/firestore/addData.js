@@ -1,20 +1,23 @@
 import firebase_app from "../config";
-import { getFirestore, doc, setDoc, writeBatch, arrayUnion, updateDoc, arrayRemove } from "firebase/firestore";
+import { getFirestore, doc, setDoc,addDoc, writeBatch, arrayUnion, updateDoc, arrayRemove } from "firebase/firestore";
 
 const db = getFirestore(firebase_app)
 export async function addData(colllection, id, data) {
-    let result = null;
-    let error = null;
+  let result = null;
+  let error = null;
 
-    try {
-        result = await setDoc(doc(db, colllection, id), data, {
-            merge: true,
-        });
-    } catch (e) {
-        error = e;
-    }
+  try {
+      result = await setDoc(doc(db, colllection, id), data, {merge: true});
+  } catch (e) {
+      error = e;
+  }
 
-    return { result, error };
+  return { result, error };
+}
+
+export async function addNote(colllection, id, colll2, id2, data){
+  await setDoc(doc(db,colllection, id, colll2, id2), data, {merge:true});
+  // const messageRef = doc(db, "rooms", "roomA", "messages", "message1");
 }
 
 export async function updateData(colllection, id, ref, data){

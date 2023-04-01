@@ -17,6 +17,12 @@ export async function getData(colllection, id) {
   return { result, error };
 }
 
+export async function getNotes(colllection, id, colll2, id2){
+  let docRef = doc(db, colllection, id, colll2, id2);
+  let result = await getDoc(docRef);
+  return result
+}
+
 export async function getAllDocs(colllection) {
   let docList = []
   const querySnapshot = await getDocs(collection(db, colllection));

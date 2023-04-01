@@ -203,7 +203,7 @@ export const KanjiList = ({info, uid}) => {
 						let color
 						item.bl = !item.bl
 						item.bl? color = 'yellow': color='white'
-						const div = document.querySelector('pre')
+						const div = document.getElementById('lyrics')
 						div.innerHTML = div.innerHTML.replaceAll(item.kanji,()=>{
 							return `<span style="background-color: ${color}">${item.kanji}</span>`
 						})
