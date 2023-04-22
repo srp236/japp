@@ -12,7 +12,7 @@ import { getFirestore, collection, query, where, getDocs } from "firebase/firest
 import firebase_app from "../firebase/config"
 import { getAuth } from 'firebase/auth'
 import app from '../firebase/config'
-import { getDocuQuery } from '@/src/firebase/firestore/getData'
+import { getDocuQuery, getAllDocs } from '@/src/firebase/firestore/getData'
 import { updateMultiDocs } from '../firebase/firestore/addData'
 
 const db = getFirestore(firebase_app)
@@ -64,12 +64,15 @@ let options = []
 async function getTags(uid) {
   let opt = []
   const request = await getData('users',uid)
-  const userTags = request.result.data()['tags']
+  if(request.length > 0){
+    const userTags = request.result.data()['tags']
   userTags.map(tag=>{
     options.push({value: tag})
   })
   opt = [...new Set(options)]
   options = opt
+  }
+  
 }
 console.log(options)
 
@@ -78,6 +81,7 @@ export default function Home() {
   const [sloading, setsLoading] = useState(true);
   const [kcard, setkcard] = useState(false);
   const [tags, setTags] = useState(false);
+  const [lt, setlt] = useState([]);
   const router = useRouter()
   const { authUser, loading } = useAuth();
   const auth = getAuth(app);
@@ -124,7 +128,8 @@ export default function Home() {
   const extractK = async (event) => {
     setsLoading(true)
     event.preventDefault()
-    let l1 = [], l2 = []
+    let l1 = [], l3 = []
+    const l2 = []
 
     let x = document.forms["extractForm"]["userText"].value;
     if (x == "") {
@@ -141,13 +146,13 @@ export default function Home() {
         console.log('yayay')
       } else {
         console.log('mooo')
-        l2.push(test)
+        lt.push(element)
       }
     });
-    let l3 = await getKanjiInfo(l1)
-    
-
-
+    // setlt(l2)
+    console.log(lt)
+    l3 = await getKanjiInfo(l2)
+    console.log(l3)    
     // let test = await getAllDocID('kanji')
     // list.forEach(element => {
     //   if(test.indexOf(element) > -1){
@@ -194,6 +199,10 @@ export default function Home() {
       <Content>
         <Spin spinning={sloading}>
           <h1>ようこそ {name}!</h1>
+          <Button onClick={async ()=>{
+            let l = await getAllDocID('kanji')
+            console.log(l.length)
+          }}>len</Button>
           <div>
             <Card>
               <AutoComplete

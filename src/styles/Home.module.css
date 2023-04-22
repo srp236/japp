@@ -319,6 +319,7 @@
   background-color: rgb(227, 227, 227);
   padding: 2px 2px;
   visibility: hidden;
+  /* text-align: center; */
 }
 
 .highlightOptions {
@@ -328,40 +329,11 @@
   display: inline-block;
 }
 
-#lyrics::selection {
-  background-color: red;
-}
-
-.gotta {
+.ty a {
   background-color: rgb(203, 203, 203);
   color: black;
 }
-
-.gotta:hover {
+.ty a:hover {
+  /* background-color: rgb(206, 206, 206); */
   background-color: grey;
-  color: white;
 }
-
-/* .pre::selection .tltp{
-  visibility: visible;
-} */
-
-/* .ty::selection {
-  visibility: visible;
-  background-color: red;
-} */
-
-/* .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #555;
-}
-
-.tooltip{
-  position: relative;
-}
-
-.tooltip::selection .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-} */

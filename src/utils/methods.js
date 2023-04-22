@@ -14,7 +14,8 @@ export const flashCardDoc = async (uid) => {
 	let list1 = [{label:'new +',id:'New Card', data:[], key:0}]
 	let temp = []
 	const request = await getData('users', uid)
-	const response = request.result.data()['flashcardRefs']
+	if(request.length > 0){
+		const response = request.result.data()['flashcardRefs']
 	const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
 	response.forEach(element => {
 		request2.forEach(element2 => {
@@ -28,6 +29,8 @@ export const flashCardDoc = async (uid) => {
 	});
 	items = list1
 	list1 = [{label:'new +',id:'New Card', data:[]}]
+	}
+	
 }
 
 export const isKanji = (str) => {
@@ -194,10 +197,10 @@ export const KanjiList = ({info, uid}) => {
 
 	return (
 		<>
-		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
+		{/* <Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop> */}
 		{info.map(item=>(
 			<>
-			<Card key={info.indexOf(item)} style={{width:'500px', margin:'20px 0px'}}>
+			<Card key={item.key} style={{width:'500px', margin:'20px 0px'}}>
 				<div style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
 					<h2 onClick={()=>{
 						let color
