@@ -9,8 +9,7 @@ import { KanjiList, CommonFoot, flashCardDoc } from '@/src/utils/methods';
 import { useAuth } from '@/src/utils/AuthUserContext';
 const { Header } = Layout;
 import { MenuOutlined, DeleteOutlined, FileAddOutlined, PlusOutlined } from '@ant-design/icons';
-import { addNote } from '@/src/firebase/firestore/addData';
-import { updateDataArray, updateNoteArray } from '@/src/firebase/firestore/addData';
+import { updateDataArray, updateNoteArray, addNote } from '@/src/firebase/firestore/addData';
 
 let hlp = {}, lyricH = '', selec = '', aR = '',tagList = [],annotationTags = []
 export default function Song() {
@@ -50,7 +49,8 @@ export default function Song() {
   const getLyricsKanji = async () => {
     if(fstat == 0) {
       const request = await getData('lyrics', artist)
-      const response = request.result.data()[title]
+      console.log(request)
+      const response = request.data()[title]
       document.getElementById('lyrics').innerText = response.lyrics
       lyricH = document.getElementById('lyrics').offsetHeight + 200
       const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
@@ -59,9 +59,13 @@ export default function Song() {
       getAnnotations()
     } else {
       const res = await scrapeData(fstat, title, artist)
+      console.log(res)
       if(res == 0){
         const request = await getData('lyrics', artist)
-        const response = request.result.data()[title]
+        console.log(request)
+        console.log(request.data())
+        const response = request.data()[title]
+        console.log(response)
         document.getElementById('lyrics').innerText = response.lyrics
         const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
         setInfo(request2)
@@ -186,7 +190,7 @@ export default function Song() {
       uid = authUser.uid
       flashCardDoc(uid).then(e=>{
         getLyricsKanji()
-        setsLoading(false)
+        // setsLoading(false)
       })
     }
   },[router.query, authUser,loading])

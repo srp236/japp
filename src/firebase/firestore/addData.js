@@ -42,6 +42,7 @@ export async function updateNoteArray(colllection, id, data1, data2, data3, type
     }
     return { result, error };
 }
+
 export async function updateDataArray(colllection, id, data1, data2, type) {
     let result = null;
     let error = null;
@@ -67,20 +68,24 @@ export async function updateMultiDocs(colllection, list, field, data){
 
 export async function createDoc(colllection, id, data) {
     const response = await setDoc(doc(db, colllection, id), data,{merge: true})
-    return response
+    return response;
 }
 
 export async function createMultiDocs(list, songName, artistName, oldList) {
   const batch = writeBatch(db);
-  let l = await getAllDocID();
-  let idx = (l.length) - 1
+  var idx = (await getAllDocID('kanji')).length
   if(songName == null & artistName == null){
-    const ref3 = doc(db, "kanji", element.kanji);
-    batch.set(ref3, {}) //why??
+    list.forEach(element => {
+      const ref3 = doc(db, "kanji", element.kanji);
+      // batch.set(ref3, {test:'test'}) //why?? 
+      batch.set(ref3, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kunyomi, 'onyomi':element.onyomi, 'meaning':element.meaning, 'bl':false, 'songRef':[], 'tags':[], key:idx});
+      idx++
+    });
   } else {
     list.forEach(element => {
       const ref = doc(db, "kanji", element.kanji);
-      batch.set(ref, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kun, 'onyomi':element.onr, 'meaning':element.meaning, 'bl':false, 'songRef':[`${songName} by ${artistName}`], 'tags':[], 'key':idx + 1});
+      batch.set(ref, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kun, 'onyomi':element.onr, 'meaning':element.meaning, 'bl':false, 'songRef':[`${songName} by ${artistName}`], 'tags':[], 'key':idx});
+      idx++
     });
     oldList.forEach(element => {
       const ref2 = doc(db, "kanji", element);

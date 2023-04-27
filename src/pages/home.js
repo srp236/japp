@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import React, { useEffect, useState } from 'react'
 import { Layout, Spin, notification, Card, Button, AutoComplete } from 'antd';
-import { getData, getAllDocID } from '@/src/firebase/firestore/getData'
+import { getData, getAllDocID, getDocuQuery, getAllDocs } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../utils/methods'
 import { useAuth } from '../utils/AuthUserContext'
 import {Potta_One} from 'next/font/google'
@@ -12,8 +12,7 @@ import { getFirestore, collection, query, where, getDocs } from "firebase/firest
 import firebase_app from "../firebase/config"
 import { getAuth } from 'firebase/auth'
 import app from '../firebase/config'
-import { getDocuQuery, getAllDocs } from '@/src/firebase/firestore/getData'
-import { updateMultiDocs } from '../firebase/firestore/addData'
+import { updateMultiDocs, createMultiDocs } from '../firebase/firestore/addData'
 
 const db = getFirestore(firebase_app)
 const pottaone = Potta_One({
@@ -26,10 +25,10 @@ const { Header, Content } = Layout;
 async function getSong(title, artist) {
   try {
     const request = await getData('lyrics', artist)
-    const response = request.result.data()[title]
+    const response = request.data()[title]
     return response;
   } catch (error) {
-    console.log('artist not in database')
+    console.log('artist or song not in database')
     return undefined
   }
 }
@@ -64,7 +63,8 @@ let options = []
 async function getTags(uid) {
   let opt = []
   const request = await getData('users',uid)
-  if(request.length > 0){
+  // if(request.length > 0){
+  if(request){
     const userTags = request.result.data()['tags']
   userTags.map(tag=>{
     options.push({value: tag})
@@ -74,7 +74,6 @@ async function getTags(uid) {
   }
   
 }
-console.log(options)
 
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
@@ -127,9 +126,8 @@ export default function Home() {
 
   const extractK = async (event) => {
     setsLoading(true)
+    let list1 = [], list2 = [], list3 = [], l2 = []
     event.preventDefault()
-    let l1 = [], l3 = []
-    const l2 = []
 
     let x = document.forms["extractForm"]["userText"].value;
     if (x == "") {
@@ -139,32 +137,31 @@ export default function Home() {
     } 
     const list = isKanji(x)
 
-    list.forEach(async element => {
-      let test = await getDocuQuery('kanji','kanji','==',element)
-      if(test.length != 0){
-        l1.push(test)
-        console.log('yayay')
+    let test = await getAllDocID('kanji')
+    list.forEach(element => {
+      if(test.indexOf(element) > -1){
+        list1.push(element)
       } else {
-        console.log('mooo')
-        lt.push(element)
+        list2.push(element)
       }
     });
-    // setlt(l2)
-    console.log(lt)
-    l3 = await getKanjiInfo(l2)
-    console.log(l3)    
-    // let test = await getAllDocID('kanji')
-    // list.forEach(element => {
-    //   if(test.indexOf(element) > -1){
-    //     oldKanji.push(element)
-    //   } else {
-    //     newKanji.push(element)
-    //   }
-    // });
 
-    // list2 = await getKanjiInfo(list)
-    // setkcard(list2)
-    // setsLoading(false)
+    //for already existing kanji
+    list1.forEach(async element => {
+      let knj = await getData('kanji', element)
+      list3.push(knj.data())
+    });
+
+    //for new kanji
+    l2 = await getKanjiInfo(list2)
+    l2.forEach(element => {
+      list3.push(element)
+    });
+
+    setkcard(list3)
+    setsLoading(false)
+    
+    createMultiDocs(l2,null,null,'')
     ///chnage logic herere plzzzzllzlzlzzl for card info
   }
   useEffect(()=>{

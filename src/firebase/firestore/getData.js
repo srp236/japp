@@ -14,7 +14,7 @@ export async function getData(colllection, id) {
       error = e;
   }
 
-  return { result, error };
+  return result
 }
 
 export async function getNotes(colllection, id, colll2, id2){

@@ -76,6 +76,7 @@ async function Lyrics(songName, artistName, lyricRef) {
     await createMultiDocs(kanjiInfoList, songName, artistName, oldKanji)
     return 0
   } catch (error) {
+    console.log(error)
     return error
   }
 }

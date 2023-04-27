@@ -14,15 +14,16 @@ export const flashCardDoc = async (uid) => {
 	let list1 = [{label:'new +',id:'New Card', data:[], key:0}]
 	let temp = []
 	const request = await getData('users', uid)
-	if(request.length > 0){
+	if(request){
+	// if(request.data().length > 0){
 		const response = request.result.data()['flashcardRefs']
-	const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
-	response.forEach(element => {
-		request2.forEach(element2 => {
-			if(element2.flashcardRef == element){
-				temp.push(element2.kanji)
-			}
-		});
+		const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
+		response.forEach(element => {
+			request2.forEach(element2 => {
+				if(element2.flashcardRef == element){
+					temp.push(element2.kanji)
+				}
+			});
 		let i=list1.length
 		list1.push({label:element, id:element, key:i, data:temp})
 		temp = []
@@ -30,7 +31,6 @@ export const flashCardDoc = async (uid) => {
 	items = list1
 	list1 = [{label:'new +',id:'New Card', data:[]}]
 	}
-	
 }
 
 export const isKanji = (str) => {
@@ -56,7 +56,15 @@ export async function getKanjiInfo(list) {
 	while (i< (list).length) {
 		k=list[i]
 		await fetch(`https://kanjiapi.dev/v1/kanji/${k}`).then(r => r.json()).then(r=> s=r);
-		myList.push({kanji:s.kanji, jlpt:s.jlpt, kun:s.kun_readings, onr:s.on_readings, meaning: s.meanings, key: i, bl:false})
+		myList.push({
+			kanji:typeof s.kanji=='undefined'?' ':s.kanji, 
+			jlpt:typeof s.jlpt=='undefined'?' ':s.jlpt, 
+			kunyomi:typeof s.kun_readings=='undefined'?' ':s.kun_readings, 
+			onyomi:typeof s.on_readings=='undefined'?' ':s.on_readings, 
+			meaning:typeof s.meanings=='undefined'?' ':s.meanings, 
+			key: i, bl:false,tags:[]
+		})
+		console.log(typeof s.kun_readings)
 		i++
 	}
 	return myList
@@ -188,7 +196,6 @@ export const KanjiList = ({info, uid}) => {
 	const [curr, setCurrent] = useState('');
 	const [inputValue, setInputValue] = useState('')
 	const inputRef = useRef(null);
-
 	useEffect(() => {
     if (curr !='') {
       inputRef.current?.focus();
