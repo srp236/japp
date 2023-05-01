@@ -188,10 +188,10 @@ export default function Song() {
     if(authUser){
       name = authUser.name  
       uid = authUser.uid
-      flashCardDoc(uid).then(e=>{
+      // flashCardDoc(uid).then(e=>{
         getLyricsKanji()
-        // setsLoading(false)
-      })
+      //   // setsLoading(false)
+      // })
     }
   },[router.query, authUser,loading])
 
@@ -209,7 +209,11 @@ export default function Song() {
         </Header>
         <div className={styles.bar}></div>
         <div className={styles.lbody}>
-          <Card style={{width:'60%'}}>
+          <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}}>
+            <KanjiList info={info} uid={uid}/>
+          </Card>
+          <Card style={{width:'50%'}}>
+          {/* <Card> */}
             <h1 id='til'>{title}</h1> 
             <h4>{artist}</h4>
             <div style={{display:"flex", flexDirection:"row"}}>
@@ -236,9 +240,6 @@ export default function Song() {
               </div>
             </div>
           </Card> 
-          <Card id='may' style={{width:'40%',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}}>
-            <KanjiList info={info} uid={uid}/>
-          </Card>
           <button id='tltp' onClick={createAnnotation} className={styles.tltp}>
             Create Annotation
           </button>

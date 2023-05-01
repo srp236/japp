@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import React, { useEffect, useState } from 'react'
-import { Layout, Spin, notification, Card, Button, AutoComplete } from 'antd';
+import { Layout, Spin, notification, Card, Button, AutoComplete, Input, Form } from 'antd';
 import { getData, getAllDocID, getDocuQuery, getAllDocs } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../utils/methods'
 import { useAuth } from '../utils/AuthUserContext'
@@ -13,6 +13,7 @@ import firebase_app from "../firebase/config"
 import { getAuth } from 'firebase/auth'
 import app from '../firebase/config'
 import { updateMultiDocs, createMultiDocs } from '../firebase/firestore/addData'
+const { TextArea } = Input;
 
 const db = getFirestore(firebase_app)
 const pottaone = Potta_One({
@@ -65,7 +66,7 @@ async function getTags(uid) {
   const request = await getData('users',uid)
   // if(request.length > 0){
   if(request){
-    const userTags = request.result.data()['tags']
+    const userTags = request.data()['tags']
   userTags.map(tag=>{
     options.push({value: tag})
   })
@@ -78,9 +79,8 @@ async function getTags(uid) {
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
   const [sloading, setsLoading] = useState(true);
-  const [kcard, setkcard] = useState(false);
+  const [kcard, setkcard] = useState([]);
   const [tags, setTags] = useState(false);
-  const [lt, setlt] = useState([]);
   const router = useRouter()
   const { authUser, loading } = useAuth();
   const auth = getAuth(app);
@@ -95,25 +95,15 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (values) => {
     setsLoading(true)
-    event.preventDefault()
-
-    let x = document.forms["songForm"]["songName"].value;
-    let y = document.forms["songForm"]["artistName"].value;
-    if (x == "" || y == "") {
-      alert("Please complete all fileds");
-      setsLoading(false)
-      return false;
-    } 
+    console.log(values)
     const data = {
-      songName: event.target.songName.value,
-      artistName: event.target.artistName.value,
+      songName: values.songName,
+      artistName: values.artistName,
     }
-
     const temp = await getSong(data.songName, data.artistName)
     let temp2;
-
     if(temp !== undefined){
       router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:0}})
     } else if ((temp2 = await getLyricRef(data.songName, data.artistName)) !== 1) {
@@ -124,19 +114,10 @@ export default function Home() {
     }
   }
 
-  const extractK = async (event) => {
+  const extractK = async (values) => {
     setsLoading(true)
     let list1 = [], list2 = [], list3 = [], l2 = []
-    event.preventDefault()
-
-    let x = document.forms["extractForm"]["userText"].value;
-    if (x == "") {
-      alert("Please enter text to extract");
-      setsLoading(false)
-      return false;
-    } 
-    const list = isKanji(x)
-
+    const list = isKanji(values.kanjiblock)
     let test = await getAllDocID('kanji')
     list.forEach(element => {
       if(test.indexOf(element) > -1){
@@ -156,12 +137,17 @@ export default function Home() {
     l2 = await getKanjiInfo(list2)
     l2.forEach(element => {
       list3.push(element)
-    });
-
-    setkcard(list3)
-    setsLoading(false)
-    
+    });    
     createMultiDocs(l2,null,null,'')
+    if(list3){
+      console.log(list3)
+      setkcard(list3)
+      console.log(kcard)
+      setsLoading(false)
+    }else{
+      console.log(list3)
+      console.log('error')
+    }
     ///chnage logic herere plzzzzllzlzlzzl for card info
   }
   useEffect(()=>{
@@ -171,10 +157,10 @@ export default function Home() {
     if(authUser){
       name = authUser.name
       uid = authUser.uid
-      flashCardDoc(authUser.uid).then(e=>{
-        getTags(uid)
+      // flashCardDoc(authUser.uid).then(e=>{
+      //   // getTags(uid)
         setsLoading(false)
-      })
+      // })
     }
   },[authUser,loading])
 
@@ -196,10 +182,10 @@ export default function Home() {
       <Content>
         <Spin spinning={sloading}>
           <h1>ようこそ {name}!</h1>
-          <Button onClick={async ()=>{
+          {/* <Button onClick={async ()=>{
             let l = await getAllDocID('kanji')
             console.log(l.length)
-          }}>len</Button>
+          }}>len</Button> */}
           <div>
             <Card>
               <AutoComplete
@@ -230,22 +216,20 @@ export default function Home() {
           </div>
           <Card className={styles.card}>
             <h1>Search a Song</h1>
-            <form className={styles.songForm} name='songForm' onSubmit={handleSubmit}>
-              <label>Song Name</label>
-              <input type='text' id='songName' name='songName'/>
-              <label>Artist Name</label>
-              <input type='text' id='artistName' name='artistName'/>
-              <button type='submit'>Submit</button>  
-            </form>            
+            <Form className={styles.songForm} name='songForm' onFinish={handleSubmit} colon={false}>
+              <Form.Item label="Song Name" name="songName" id='songName'><Input /></Form.Item>
+              <Form.Item label="Artist Name" name="artistName" id='artistName'><Input /></Form.Item>
+              <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Search</Button></Form.Item>
+            </Form>
           </Card>
           <Card className={styles.card}>
             <h1>Kanji Extractor 3000</h1>
-            <form className={styles.songForm} name='extractForm' onSubmit={extractK} >
-              <textarea rows='5' style={{width:'500px', height:'100px', textAlign:'start', resize:'none', }} type='text' id='userText' name='userText' placeholder='Enter text to have the kanji extracted...'/>
-              <button type='submit'>Submit</button>  
-            </form>
+            <Form className={styles.songForm} name='extractForm' onFinish={extractK}>
+              <Form.Item id='kanjiblock' name='kanjiblock' rules={[{min:0, message:'enter kanji to extract'}]}><TextArea autoSize={{minRows: 3}} placeholder='Enter text to have the kanji extracted...' style={{width:'40%'}}></TextArea></Form.Item>
+              <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>
+            </Form>
             <div className={styles.homeCard}>
-              {kcard?<KanjiList info={kcard} uid={uid}/>:<div></div>}
+              {kcard?<KanjiList info={kcard} uid={uid}/>:<div>y</div>}
             </div>
           </Card>
           <Card className={styles.card}>

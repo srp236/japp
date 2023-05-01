@@ -143,13 +143,10 @@
 .lbody {
   display: flex;
   flex-direction: row;
-  margin: 20px 20px;
-  /* width: 100%; */
+  margin: 20px 10%;
+  /* margin: 20px 20px; */
+  /* width: 90%; */
   /* height: 1800px; */
-  /* margin-left: 1%; */
-  /* margin-right: ; */
-  /* margin-bottom: 20px;
-  margin-top: 20px; */
 }
 
 .bar{
@@ -336,4 +333,16 @@
 .ty a:hover {
   /* background-color: rgb(206, 206, 206); */
   background-color: grey;
+}
+
+.registerForm:hover {
+  border-color: green;
+  border-inline-end-width: 1px;
+}
+
+.registerForm {
+  margin: 100px 25%;
+  padding: 50px;
+
+  background-color: rgb(249, 249, 249);
 }

@@ -16,7 +16,7 @@ export const flashCardDoc = async (uid) => {
 	const request = await getData('users', uid)
 	if(request){
 	// if(request.data().length > 0){
-		const response = request.result.data()['flashcardRefs']
+		const response = request.data()['flashcardRefs']
 		const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
 		response.forEach(element => {
 			request2.forEach(element2 => {
@@ -189,8 +189,6 @@ export function Drop({kanji, icon, dataaa, uid}) {
     </>
   )
 }
-
-
 
 export const KanjiList = ({info, uid}) => {
 	const [curr, setCurrent] = useState('');

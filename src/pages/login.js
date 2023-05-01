@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import logo from '../../public/images/logo_red.png'
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { Layout, Row, Col, Spin, notification, Card, message } from 'antd';
+import { Layout, Row, Col, Spin, notification, Card, message, Form, Input, Button } from 'antd';
 import React, { useEffect, useState } from 'react'
 import app from '../firebase/config'
 
@@ -16,23 +16,13 @@ export default function Login() {
   const [loading, setsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const handleLogin = (event) => {
+  const handleLogin = (values) => {
     setsLoading(true)
-    event.preventDefault()
-    let email = document.forms["loginForm"]["username"].value;
-    let password = document.forms["loginForm"]["password"].value;
-    if (email == "" || password == "") {
-      alert("Please complete all fileds");
-      setsLoading(false)
-      return false;
-    }
     const auth = getAuth(app);
-    const request = signInWithEmailAndPassword(auth, email, password)
+    const request = signInWithEmailAndPassword(auth, values.username, values.password)
     .then((userCredential) => {
       const user = userCredential.user;
-      console.log(user)
       router.push('/home')
-      setsLoading(false)
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -60,17 +50,24 @@ export default function Login() {
         </div>
       </Header>
       <div className={styles.bar}></div>
-      
-      <Content>
+  
+      <Content style={{padding:'0px 25%', margin:'20px 30px', textAlign:'center'}}>
         <Spin spinning={loading}>
-            <Link href={'/home'}></Link>
-          <form className={styles.songForm} name='loginForm' onSubmit={handleLogin}>
+          <Link href={'/home'}></Link>
+          <div>
+            <Form className={styles.songForm} name='loginForm' layout='vertical' onFinish={handleLogin} style={{minWidth:'250px', maxWidth:'1000px'}}>
+              <Form.Item name='username' id='username' label='Email'><Input /></Form.Item>
+              <Form.Item name='password' id='password' label='Password'><Input.Password /></Form.Item>
+              <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Submit</Button></Form.Item>
+            </Form>
+          </div>
+          {/* <form className={styles.songForm} name='loginForm' onSubmit={handleLogin}>
             <label>Email</label>
             <input type='text' id='username' name='username'/>
             <label>Password</label>
             <input type='text' id='password' name='password'/>
             <button type='submit'>Submit</button>  
-          </form> 
+          </form>  */}
         </Spin>
       </Content>
     </Layout>
