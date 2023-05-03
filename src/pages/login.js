@@ -50,24 +50,14 @@ export default function Login() {
         </div>
       </Header>
       <div className={styles.bar}></div>
-  
-      <Content style={{padding:'0px 25%', margin:'20px 30px', textAlign:'center'}}>
+      <Content style={{backgroundColor:'white'}}>
         <Spin spinning={loading}>
-          <Link href={'/home'}></Link>
-          <div>
-            <Form className={styles.songForm} name='loginForm' layout='vertical' onFinish={handleLogin} style={{minWidth:'250px', maxWidth:'1000px'}}>
-              <Form.Item name='username' id='username' label='Email'><Input /></Form.Item>
-              <Form.Item name='password' id='password' label='Password'><Input.Password /></Form.Item>
-              <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Submit</Button></Form.Item>
-            </Form>
-          </div>
-          {/* <form className={styles.songForm} name='loginForm' onSubmit={handleLogin}>
-            <label>Email</label>
-            <input type='text' id='username' name='username'/>
-            <label>Password</label>
-            <input type='text' id='password' name='password'/>
-            <button type='submit'>Submit</button>  
-          </form>  */}
+          <Form className={styles.registerForm} name='loginForm' layout='vertical' onFinish={handleLogin} style={{minWidth:'250px', maxWidth:'1000px'}}>
+            <Form.Item name='username' id='username' label='Email'><Input /></Form.Item>
+            <Form.Item name='password' id='password' label='Password'><Input.Password /></Form.Item>
+            <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Submit</Button></Form.Item>
+            <p>Don't have an account? <a href='../register'>Create one here!</a> </p>
+          </Form>
         </Spin>
       </Content>
     </Layout>

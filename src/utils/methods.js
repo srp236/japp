@@ -1,6 +1,6 @@
 import {addData, createDoc, updateDataArray, updateData, updateMultiDocs} from '@/src/firebase/firestore/addData'
 import {delField, delDoc} from '@/src/firebase/firestore/delField'
-import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal, Tag, Input } from 'antd';
+import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal, Tag, Input, Form } from 'antd';
 import { docsQuery, getAllDocs, getData, getDocuQuery } from '../firebase/firestore/getData';
 import { MoreOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router'
@@ -17,19 +17,21 @@ export const flashCardDoc = async (uid) => {
 	if(request){
 	// if(request.data().length > 0){
 		const response = request.data()['flashcardRefs']
-		const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
-		response.forEach(element => {
-			request2.forEach(element2 => {
-				if(element2.flashcardRef == element){
-					temp.push(element2.kanji)
-				}
+		if(response.length != 0){
+			const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
+			response.forEach(element => {
+				request2.forEach(element2 => {
+					if(element2.flashcardRef == element){
+						temp.push(element2.kanji)
+					}
+				});
+				let i=list1.length
+				list1.push({label:element, id:element, key:i, data:temp})
+				temp = []
 			});
-		let i=list1.length
-		list1.push({label:element, id:element, key:i, data:temp})
-		temp = []
-	});
-	items = list1
-	list1 = [{label:'new +',id:'New Card', data:[]}]
+			items = list1
+			list1 = [{label:'new +',id:'New Card', data:[]}]
+		}
 	}
 }
 
@@ -74,15 +76,15 @@ export const FlashSets = (user) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const router = useRouter()
   const handleOk = (e) => {
-		let x = document.forms["createsetform"]["setTitle"].value
-		if (x == "") {
+	let x = document.forms['createsetform']['setTitle'].value
+	if (x == "") {
       alert("Enter name for new flashcard set");
       return false;
     } 
-		updateDataArray('users', user.user, "flashcardRefs", x, 'add').then(e=>{
-			setIsModalOpen(false)
-			router.reload()
-		})
+	updateDataArray('users', user.user, "flashcardRefs", x, 'add').then(e=>{
+		setIsModalOpen(false)
+		router.reload()
+	})
   };
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -98,7 +100,7 @@ export const FlashSets = (user) => {
 			<Modal title="Create New Flashcard Set" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
 				<form name='createsetform' style={{display:'flex', flexDirection:'column'}}>
 					<label>Title of Set</label>
-					<input type='text' id='setTitle' name='setTitle'/>
+					<Input type='text' id='setTitle' name='setTitle'/>
 					{/* add tags option for sorting also allow for image selection amongst specific options or user opload */}
 				</form>
 			</Modal>
@@ -109,8 +111,8 @@ export const FlashSets = (user) => {
 					<p style={{fontStyle:'italic'}}>{element.data.length} card(s)</p>
 				</div>
 			</div>}>
-				<div style={{display:'flex', flexDirection:'row', justifyContent:'center'}} >
-					<a onClick={()=>{router.push({pathname:`/study/${element.id}`})}}><CaretRightOutlined/></a>
+				<div style={{display:'flex', flexDirection:'row', justifyContent:'center'}}>
+					<a onClick={()=>{router.push({pathname:`/study/${element.id}`, query:{set:element.id}})}}><CaretRightOutlined/></a>
 				</div>
 				<FlashDrop set={element} 	user={user}></FlashDrop>
 			</Card>
@@ -202,7 +204,7 @@ export const KanjiList = ({info, uid}) => {
 
 	return (
 		<>
-		{/* <Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop> */}
+		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
 		{info.map(item=>(
 			<>
 			<Card key={item.key} style={{width:'500px', margin:'20px 0px'}}>

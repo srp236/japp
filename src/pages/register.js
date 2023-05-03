@@ -58,7 +58,6 @@ export default function Register() {
       
       <Content style={{backgroundColor:'white'}}>
         <Spin spinning={loading}>
-          <Link href={'/home'}></Link>
           <Form className={styles.registerForm} name='registerForm' layout='vertical' onFinish={handleRegister} style={{minWidth:'250px', maxWidth:'1000px', textAlign:'left'}}>
             <h2>Create an Account</h2>
             <Form.Item name='displayName' id='name' label='Name' requiredMark='optional'
@@ -94,6 +93,7 @@ export default function Register() {
               validateTrigger='onBlur'
             ><Input.Password /></Form.Item>
             <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Register</Button></Form.Item>
+            <p>Already have an account? <a href='../login'>Login now!</a> </p>
           </Form>
         </Spin>
       </Content>

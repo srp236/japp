@@ -5,13 +5,56 @@ import styles from '@/src/styles/Home.module.css'
 import styles2 from '@/src/styles/FlashCard.module.css'
 import React, { useEffect, useState } from 'react'
 import { Layout, Row, Col, Spin, notification, Card } from 'antd';
-import { getData } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../../utils/methods'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { getDocuQuery, getData } from '@/src/firebase/firestore/getData'
 
 const { Header, Footer, Content } = Layout;
 
 export default function FlashCardSet() {
+  const [kanji, setKanji] = useState([]);
+  const router = useRouter()
+  const {query: {sett}} = router
+
+  const getKanji = async(setName) => {
+    console.log(setName)
+    const list = await getDocuQuery('kanji', 'flashcardRef', '==', 'Test');
+    setKanji(list)
+  }
+
+  const Flashcards = () => {
+    return (
+      kanji.map(element => (
+        <div className={styles.ccard} id='ccard' onClick={()=>{      
+          if(document.getElementById('cinner').style.transform == 'rotateY(180deg)'){
+            document.getElementById('cinner').style.transform = 'rotateY(0deg)'
+          } else {
+            document.getElementById('cinner').style.transform = 'rotateY(180deg)'
+          }
+        }}>
+          <div id='cinner' className={styles.cinner}>
+            <div className={styles.cfront}>
+              <Card style={{backgroundColor:'green'}}>
+                <h2>{element.kanji}</h2>
+              </Card>
+            </div>
+            <div className={styles.cback}>
+              <Card>
+                <p>(1) {(element.meaning).join(', ')}</p>
+                <p>kun-yomi: {(element.kunyomi).join('、')}</p>
+                <p>On Yomi: {(element.onyomi).join('、')}</p>
+              </Card>
+            </div>
+          </div>
+        </div>
+      ))
+    )
+  }
+
+  useEffect(()=>{
+    getKanji(sett)
+  },[router])
+
   return (
     <>
     <Head>
@@ -23,39 +66,13 @@ export default function FlashCardSet() {
     <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
       <Image alt='logo' width={120} height={50} src="/images/logo_red.png" />
     </Header>
-      <div className={styles.bar}></div>
-{/*  //////////////////////////////////////////////////////////////////////////////////// */}
-    <div className={styles.cont}>
-    {/* <div className={styles.cont}> */}
-      <Card id='flipCard' className={[styles.crd]} onClick={()=>{
-      // <Card id='flipCard' className={[styles.flipCard, styles.front]} onClick={()=>{
-        // document.getElementById('flipCard').classList.toggle(styles.chg);
-        document.getElementById('flipCard').classList.toggle(styles.back);
-    }}>
-        <div className={styles.front}></div>
-        <div className={styles.back}> byyee back</div>
-      </Card>
-    </div>
-
-
-{/*  //////////////////////////////////////////////////////////////////////////////////// */}
+    <div className={styles.bar}></div>
     <Content>
-      <div className={[styles.space]} style={{display:'flex', flexDirection:'row', justifyContent:'center', padding:'20px 20px'}}>
-
-        {/* <Card className={styles2.flashcardBox} style={{width:'500px', height:'300px', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:"center"}}>
-          <div className={styles2.flashcardInner}>
-            <div className={styles2.flashcardFront}>Hiii this is the front</div>
-            <div className={styles2.flashcardBack}>byyeee this is the back</div>
-          </div>
-        </Card> */}
-
-      </div>
-      <div style={{display:'flex', flexDirection:'row', justifyContent:'center', padding:'20px 20px'}}>
-        <CheckOutlined />
-        <CloseOutlined />
-      </div>
+      <center>
+        <Flashcards />
+      </center>
     </Content>
-      <CommonFoot/>
+    <CommonFoot/>
     </>
   )
 }

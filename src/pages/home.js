@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import React, { useEffect, useState } from 'react'
-import { Layout, Spin, notification, Card, Button, AutoComplete, Input, Form } from 'antd';
+import { Layout, Spin, notification, Card, Button, AutoComplete, Input, Form, Row, Column } from 'antd';
 import { getData, getAllDocID, getDocuQuery, getAllDocs } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../utils/methods'
 import { useAuth } from '../utils/AuthUserContext'
@@ -157,10 +157,10 @@ export default function Home() {
     if(authUser){
       name = authUser.name
       uid = authUser.uid
-      // flashCardDoc(authUser.uid).then(e=>{
-      //   // getTags(uid)
+      flashCardDoc(authUser.uid).then(e=>{
+         // getTags(uid)
         setsLoading(false)
-      // })
+      })
     }
   },[authUser,loading])
 
@@ -214,24 +214,29 @@ export default function Home() {
               </div>
             </Card>
           </div>
-          <Card className={styles.card}>
-            <h1>Search a Song</h1>
-            <Form className={styles.songForm} name='songForm' onFinish={handleSubmit} colon={false}>
-              <Form.Item label="Song Name" name="songName" id='songName'><Input /></Form.Item>
-              <Form.Item label="Artist Name" name="artistName" id='artistName'><Input /></Form.Item>
-              <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Search</Button></Form.Item>
-            </Form>
-          </Card>
-          <Card className={styles.card}>
-            <h1>Kanji Extractor 3000</h1>
-            <Form className={styles.songForm} name='extractForm' onFinish={extractK}>
-              <Form.Item id='kanjiblock' name='kanjiblock' rules={[{min:0, message:'enter kanji to extract'}]}><TextArea autoSize={{minRows: 3}} placeholder='Enter text to have the kanji extracted...' style={{width:'40%'}}></TextArea></Form.Item>
-              <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>
-            </Form>
-            <div className={styles.homeCard}>
-              {kcard?<KanjiList info={kcard} uid={uid}/>:<div>y</div>}
+          <div className={styles.mainLay}>
+            <div style={{width:'60%'}}>
+              <Card className={styles.card}>
+                <h1>Search a Song</h1>
+                <Form className={styles.songForm} name='songForm' onFinish={handleSubmit} colon={false}>
+                  <Form.Item label="Song Name" name="songName" id='songName'><Input /></Form.Item>
+                  <Form.Item label="Artist Name" name="artistName" id='artistName'><Input /></Form.Item>
+                  <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Search</Button></Form.Item>
+                </Form>
+              </Card>
+              <Card className={styles.card}>
+                <h1>Kanji Extractor 3000</h1>
+                <Form className={styles.songForm} name='extractForm' onFinish={extractK}>
+                  <Form.Item id='kanjiblock' name='kanjiblock' rules={[{min:0, message:'enter kanji to extract'}]}><TextArea autoSize={{minRows: 3}} placeholder='Enter text to have the kanji extracted...' style={{width:'40%'}}></TextArea></Form.Item>
+                  <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>
+                </Form>
+                <div className={styles.homeCard}>
+                  {kcard?<KanjiList info={kcard} uid={uid}/>:<div>y</div>}
+                </div>
+              </Card>
             </div>
-          </Card>
+            <Card className={styles.card} style={{width:'40%'}}></Card>
+          </div>
           <Card className={styles.card}>
             <h1>Flashcard Study Sets</h1>
             <div className={styles.homeCard}>

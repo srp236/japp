@@ -1,5 +1,5 @@
 import { getNotes, getData, getDocuQuery } from '@/src/firebase/firestore/getData'
-import { Layout, Spin, Card, Drawer, Tag } from 'antd';
+import { Layout, Spin, Card, Drawer, Tag, Form, Input, Button } from 'antd';
 import React, { useState, useEffect } from 'react'
 import styles from '@/src/styles/Home.module.css'
 import { useRouter } from "next/router"
@@ -11,6 +11,7 @@ const { Header } = Layout;
 import { MenuOutlined, DeleteOutlined, FileAddOutlined, PlusOutlined } from '@ant-design/icons';
 import { updateDataArray, updateNoteArray, addNote } from '@/src/firebase/firestore/addData';
 
+const { TextArea } = Input;
 let hlp = {}, lyricH = '', selec = '', aR = '',tagList = [],annotationTags = []
 export default function Song() {
   const router = useRouter()
@@ -188,10 +189,9 @@ export default function Song() {
     if(authUser){
       name = authUser.name  
       uid = authUser.uid
-      // flashCardDoc(uid).then(e=>{
+      flashCardDoc(uid).then(e=>{
         getLyricsKanji()
-      //   // setsLoading(false)
-      // })
+      })
     }
   },[router.query, authUser,loading])
 
@@ -212,12 +212,12 @@ export default function Song() {
           <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}}>
             <KanjiList info={info} uid={uid}/>
           </Card>
-          <Card style={{width:'50%'}}>
+          <Card style={{width:'60%'}}>
           {/* <Card> */}
             <h1 id='til'>{title}</h1> 
             <h4>{artist}</h4>
             <div style={{display:"flex", flexDirection:"row"}}>
-              <div className={styles.ty} id='lyrics' style={{width:'50%',fontSize:'15px', marginTop:'20px'}} 
+              <div className={styles.ty} id='lyrics' style={{width:'50%',fontSize:'20px', marginTop:'20px'}} 
               onPointerDown={()=>{document.getElementById('annon').style.visibility = "hidden";
               document.getElementById('tltp').style.visibility = "hidden"}} 
               onMouseUp={()=>{getText()}}></div>
@@ -229,12 +229,19 @@ export default function Song() {
                   <p>{txt[0]}</p>
                   <div>{txt[1]} <Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag></div>
                 </Card>:<Card id='annon' className={styles.annon}>
-                  <form name='createAnn' onSubmit={handleAnn}>
+                  <Form name='createAnn' onFinish={handleAnn}>
+                    <Form.Item id='note' name='note' rules={[{min:0, message:'please add note'}]}><TextArea autoSize={{minRows: 3}} style={{}}></TextArea></Form.Item>
+                    <div styles={{display:'flex', flexDirection:'column'}}>
+                      <Form.Item><Button type='primary' htmlType="submit">Save</Button></Form.Item>
+                      <Form.Item><Button type='primary' htmlType="submit">Cancel</Button></Form.Item>
+                    </div>
+                  </Form>
+                  {/* <form name='createAnn' onSubmit={handleAnn}>
                     <textarea id='note' name='note' style={{width:"100%", resize:"vertical"}} ></textarea>
                     <button type='submit'>Save</button>
                     <button onClick={cancelAnnotation}>Cancel</button>
-                  </form>
-                  <Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>
+                  </form> */}
+                  {/* <Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag> */}
                 </Card>
                 }
               </div>

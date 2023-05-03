@@ -23,9 +23,10 @@ export async function addNote(colllection, id, colll2, id2, data){
 
 export async function updateData(colllection, id, ref, data){
   try {
-    result = await updateDoc(doc(db, colllection, id), {[ref]:data})
+    await updateDoc(doc(db, colllection, id), {[ref]:data})
   } catch (error) {
     console.log('there was an error :(')
+    console.log(error)
   }
 }
 
