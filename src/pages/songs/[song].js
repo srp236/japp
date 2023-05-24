@@ -50,23 +50,19 @@ export default function Song() {
   const getLyricsKanji = async () => {
     if(fstat == 0) {
       const request = await getData('lyrics', artist)
-      console.log(request)
       const response = request.data()[title]
       document.getElementById('lyrics').innerText = response.lyrics
       lyricH = document.getElementById('lyrics').offsetHeight + 200
       const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
       setInfo(request2)
       setsLoading(false)
-      getAnnotations()
+      // getAnnotations()
     } else {
       const res = await scrapeData(fstat, title, artist)
       console.log(res)
       if(res == 0){
         const request = await getData('lyrics', artist)
-        console.log(request)
-        console.log(request.data())
         const response = request.data()[title]
-        console.log(response)
         document.getElementById('lyrics').innerText = response.lyrics
         const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
         setInfo(request2)
@@ -163,17 +159,16 @@ export default function Song() {
     })
   }
  
-  const handleAnn = async (event) => {
-    event.preventDefault()
+  const handleAnn = async (values) => {
     // setsLoading(true)
     try {
-      let x = document.forms["createAnn"]["note"].value;
-      if (x == "") {
-        alert("Enter a note before saving. . .");
-        return false;
-      }
-      setTxt(x)
-      let data= {[aR]:{'id':aR, 'note' :x, 'pos':hlp, 'tags':tagList}}
+      // let x = document.forms["createAnn"]["note"].value;
+      // if (x == "") {
+      //   alert("Enter a note before saving. . .");
+      //   return false;
+      // }
+      setTxt(values.note)
+      let data= {[aR]:{'id':aR, 'note' :values.note, 'pos':hlp, 'tags':tagList}}
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
       document.getElementById('annon').style.visibility = "hidden"
       // setsLoading(false)

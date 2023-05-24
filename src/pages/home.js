@@ -13,6 +13,7 @@ import firebase_app from "../firebase/config"
 import { getAuth } from 'firebase/auth'
 import app from '../firebase/config'
 import { updateMultiDocs, createMultiDocs } from '../firebase/firestore/addData'
+import { InfoCircleOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
 const db = getFirestore(firebase_app)
@@ -116,38 +117,66 @@ export default function Home() {
 
   const extractK = async (values) => {
     setsLoading(true)
-    let list1 = [], list2 = [], list3 = [], l2 = []
+    let list1 = [], list2 = [], list3 = []
+
     const list = isKanji(values.kanjiblock)
-    let test = await getAllDocID('kanji')
-    list.forEach(element => {
-      if(test.indexOf(element) > -1){
+    list.forEach(async element  => {
+      let temp = (await getData('kanji',element)).data()
+      if(temp == undefined){
         list1.push(element)
       } else {
-        list2.push(element)
+        // for already existing kanji
+        list2.push(temp)
       }
     });
 
-    //for already existing kanji
-    list1.forEach(async element => {
-      let knj = await getData('kanji', element)
-      list3.push(knj.data())
-    });
-
     //for new kanji
-    l2 = await getKanjiInfo(list2)
-    l2.forEach(element => {
-      list3.push(element)
+    list3 = await getKanjiInfo(list1)
+    list3.forEach(element => {
+      list2.push(element)
     });    
-    createMultiDocs(l2,null,null,'')
-    if(list3){
-      console.log(list3)
-      setkcard(list3)
-      console.log(kcard)
-      setsLoading(false)
-    }else{
-      console.log(list3)
-      console.log('error')
-    }
+
+    console.log(list2)
+    console.log(list3)
+    // createMultiDocs(list3,null,null,'')
+    // if(list2){
+    //   console.log(list2)
+    //   setkcard(list2)
+    //   setsLoading(false)
+    // }else{
+    //   console.log('error')
+    // }
+    // const list = isKanji(values.kanjiblock)
+    // let test = await getAllDocID('kanji')
+    // list.forEach(element => {
+    //   if(test.indexOf(element) > -1){
+    //     list1.push(element)
+    //   } else {
+    //     list2.push(element)
+    //   }
+    // });
+
+    // //for already existing kanji
+    // list1.forEach(async element => {
+    //   let knj = await getData('kanji', element)
+    //   list3.push(knj.data())
+    // });
+
+    // //for new kanji
+    // l2 = await getKanjiInfo(list2)
+    // l2.forEach(element => {
+    //   list3.push(element)
+    // });    
+    // createMultiDocs(l2,null,null,'')
+    // if(list3){
+    //   console.log(list3)
+    //   setkcard(list3)
+    //   console.log(kcard)
+    //   setsLoading(false)
+    // }else{
+    //   console.log(list3)
+    //   console.log('error')
+    // }
     ///chnage logic herere plzzzzllzlzlzzl for card info
   }
   useEffect(()=>{
@@ -158,7 +187,7 @@ export default function Home() {
       name = authUser.name
       uid = authUser.uid
       flashCardDoc(authUser.uid).then(e=>{
-         // getTags(uid)
+        //  getTags(uid)
         setsLoading(false)
       })
     }
@@ -181,13 +210,13 @@ export default function Home() {
       <div className={styles.bar}></div>
       <Content>
         <Spin spinning={sloading}>
-          <h1>ようこそ {name}!</h1>
+          <h1 className={styles.card}>ようこそ {name}!</h1>
           {/* <Button onClick={async ()=>{
             let l = await getAllDocID('kanji')
             console.log(l.length)
           }}>len</Button> */}
           <div>
-            <Card>
+            <Card className={styles.card}>
               <AutoComplete
               style={{ width: 200 }}
                 options={options}
@@ -225,7 +254,7 @@ export default function Home() {
                 </Form>
               </Card>
               <Card className={styles.card}>
-                <h1>Kanji Extractor 3000</h1>
+                <h1>Kanji Extractor 3000<InfoCircleOutlined size={10} /></h1>
                 <Form className={styles.songForm} name='extractForm' onFinish={extractK}>
                   <Form.Item id='kanjiblock' name='kanjiblock' rules={[{min:0, message:'enter kanji to extract'}]}><TextArea autoSize={{minRows: 3}} placeholder='Enter text to have the kanji extracted...' style={{width:'40%'}}></TextArea></Form.Item>
                   <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>

@@ -52,7 +52,8 @@ export default function Login() {
       <div className={styles.bar}></div>
       <Content style={{backgroundColor:'white'}}>
         <Spin spinning={loading}>
-          <Form className={styles.registerForm} name='loginForm' layout='vertical' onFinish={handleLogin} style={{minWidth:'250px', maxWidth:'1000px'}}>
+          <Form className={styles.loginForm} name='loginForm' layout='vertical' onFinish={handleLogin}>
+          {/* <Form className={styles.loginForm} name='loginForm' layout='vertical' onFinish={handleLogin} style={{minWidth:'250px', maxWidth:'1000px'}}> */}
             <Form.Item name='username' id='username' label='Email'><Input /></Form.Item>
             <Form.Item name='password' id='password' label='Password'><Input.Password /></Form.Item>
             <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Submit</Button></Form.Item>

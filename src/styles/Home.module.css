@@ -344,6 +344,44 @@
   padding: 50px;
   background-color: rgb(249, 249, 249);
 }
+/* .loginForm {
+  margin: 100px 10%;
+  margin: 100px 35%;
+  padding: 50px;
+  background-color: rgb(249, 249, 249);
+  min-width: 50%;
+  max-width: 80%;
+} */
+
+@media screen and (min-width: 1200px) {
+  .loginForm {
+    margin: 100px 35%;
+    padding: 50px;
+    background-color: rgb(249, 249, 249);
+    /* min-width: 50%; */
+    /* max-width: 80%; */
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .loginForm {
+    margin: 100px 10%;
+    padding: 50px;
+    background-color: rgb(249, 249, 249);
+    /* min-width: 50%; */
+    /* max-width: 80%; */
+  }
+}
+
+@media screen and (max-width: 990px) {
+  .loginForm {
+    margin: 100px 10%;
+    padding: 50px;
+    background-color: rgb(249, 249, 249);
+    /* min-width: 50%; */
+    /* max-width: 80%; */
+  }
+}
 
 .mainLay {
   display: flex;
