@@ -1,5 +1,5 @@
 import firebase_app from "../config";
-import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot, query, where  } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 
 const db = getFirestore(firebase_app)
 export async function getData(colllection, id) {
@@ -41,9 +41,28 @@ export async function getAllDocID(colllection) {
   return docList
 }
 
+// export async function getDocuQuery(colllection, searchfield, searchType, searchVal) {
+//   let result = []
+//   const q = query(collection(db,colllection), where(searchfield, searchType, searchVal))
+//   const unsubscribe = onSnapshot(q, (querySnapshot)=> {
+//     const results = []
+//     querySnapshot.forEach((doc) => {
+//       results.push(doc.data());
+//       result.push(doc.data());
+//     })
+//     // console.log("thi wha we got: ", results)
+//   })
+//   // const querySnapshot = await getDocs(q)
+//   // querySnapshot.forEach((doc) => {
+//   //   result.push(doc.data());
+//   // })
+//   unsubscribe()
+//   return result
+// }
 export async function getDocuQuery(colllection, searchfield, searchType, searchVal) {
   let result = []
   const q = query(collection(db,colllection), where(searchfield, searchType, searchVal))
+
   const querySnapshot = await getDocs(q)
   querySnapshot.forEach((doc) => {
     result.push(doc.data());

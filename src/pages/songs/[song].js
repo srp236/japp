@@ -50,10 +50,12 @@ export default function Song() {
   const getLyricsKanji = async () => {
     if(fstat == 0) {
       const request = await getData('lyrics', artist)
+      console.log('fire call lyrics: ', request)
       const response = request.data()[title]
       document.getElementById('lyrics').innerText = response.lyrics
       lyricH = document.getElementById('lyrics').offsetHeight + 200
       const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
+      console.log('fire call kanji: ', request2)
       setInfo(request2)
       setsLoading(false)
       // getAnnotations()
@@ -64,8 +66,8 @@ export default function Song() {
         const request = await getData('lyrics', artist)
         const response = request.data()[title]
         document.getElementById('lyrics').innerText = response.lyrics
-        const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
-        setInfo(request2)
+        // const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
+        // setInfo(request2)
         setsLoading(false)
       }
     }
@@ -176,11 +178,22 @@ export default function Song() {
       alert("error occured, please try again")
     }
   }
+  // useEffect(()=>{
+  //   setsLoading(true)
+  //   if(!loading && !authUser){
+  //     router.push('/')
+  //   }
+  //   if(authUser){
+  //     name = authUser.name  
+  //     uid = authUser.uid
+  //     flashCardDoc(uid).then(e=>{
+  //       getLyricsKanji()
+  //     })
+  //   }
+  // },[router.query, authUser,loading])
   useEffect(()=>{
     setsLoading(true)
-    if(!loading && !authUser){
-      router.push('/')
-    }
+    
     if(authUser){
       name = authUser.name  
       uid = authUser.uid
@@ -188,7 +201,17 @@ export default function Song() {
         getLyricsKanji()
       })
     }
-  },[router.query, authUser,loading])
+  },[])
+
+  // useEffect(()=>{
+  //   if(authUser){
+  //     name = authUser.name  
+  //     uid = authUser.uid
+  //     flashCardDoc(uid).then(e=>{
+  //       getLyricsKanji()
+  //     })
+  //   }
+  // },[])
 
   return (
     <>

@@ -16,18 +16,20 @@ import { updateMultiDocs, createMultiDocs } from '../firebase/firestore/addData'
 import { InfoCircleOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
-const db = getFirestore(firebase_app)
-const pottaone = Potta_One({
-  subsets:['latin'],
-  weight: ['400']
-})
+// const db = getFirestore(firebase_app)
+// const pottaone = Potta_One({
+//   subsets:['latin'],
+//   weight: ['400']
+// })
 
 const { Header, Content } = Layout;
 
 async function getSong(title, artist) {
   try {
+    //make more specific
     const request = await getData('lyrics', artist)
     const response = request.data()[title]
+    console.log('firecall check: ', response)
     return response;
   } catch (error) {
     console.log('artist or song not in database')
@@ -62,20 +64,20 @@ async function getLyricRef(songName, artistName) {
 }
 
 let options = []
-async function getTags(uid) {
-  let opt = []
-  const request = await getData('users',uid)
-  // if(request.length > 0){
-  if(request){
-    const userTags = request.data()['tags']
-  userTags.map(tag=>{
-    options.push({value: tag})
-  })
-  opt = [...new Set(options)]
-  options = opt
-  }
+// async function getTags(uid) {
+//   let opt = []
+//   const request = await getData('users',uid)
+//   // if(request.length > 0){
+//   if(request){
+//     const userTags = request.data()['tags']
+//   userTags.map(tag=>{
+//     options.push({value: tag})
+//   })
+//   opt = [...new Set(options)]
+//   options = opt
+//   }
   
-}
+// }
 
 export default function Home() {
   const [api, contextHolder] = notification.useNotification();
@@ -180,18 +182,29 @@ export default function Home() {
     ///chnage logic herere plzzzzllzlzlzzl for card info
   }
   useEffect(()=>{
-    if(!loading && !authUser){
-      router.push('/')
-    } 
-    if(authUser){
-      name = authUser.name
-      uid = authUser.uid
-      flashCardDoc(authUser.uid).then(e=>{
-        //  getTags(uid)
+  
+  //   // if(authUser){
+  //     // name = authUser.name
+  //     // uid = authUser.uid
+  //     flashCardDoc(authUser.uid).then(e=>{
+  //       //  getTags(uid)
         setsLoading(false)
-      })
-    }
-  },[authUser,loading])
+  //     })
+  //   // }
+  },[])
+  // useEffect(()=>{
+  //   if(!loading && !authUser){
+  //     router.push('/')
+  //   } 
+  //   if(authUser){
+  //     name = authUser.name
+  //     uid = authUser.uid
+  //     flashCardDoc(authUser.uid).then(e=>{
+  //       //  getTags(uid)
+  //       setsLoading(false)
+  //     })
+  //   }
+  // },[authUser,loading])
 
   return (
   <>
@@ -215,7 +228,7 @@ export default function Home() {
             let l = await getAllDocID('kanji')
             console.log(l.length)
           }}>len</Button> */}
-          <div>
+          {/* <div>
             <Card className={styles.card}>
               <AutoComplete
               style={{ width: 200 }}
@@ -242,7 +255,7 @@ export default function Home() {
                 {tags?<KanjiList info={tags}/>:<div></div>}
               </div>
             </Card>
-          </div>
+          </div> */}
           <div className={styles.mainLay}>
             <div style={{width:'60%'}}>
               <Card className={styles.card}>

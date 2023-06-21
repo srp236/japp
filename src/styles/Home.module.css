@@ -395,6 +395,30 @@
   perspective: 1000px;
 }
 
+/* #cardset:not(:first-child){
+  visibility: hidden;
+} */
+/* 
+.cardset:not(:first-child){
+  visibility: hidden;
+} */
+
+.Cardset:not(:first-child){
+  display: none;
+}
+/* 
+.Cardset:not(:nth-child(1)) {
+  visibility: hidden;
+} */
+
+/* .Cardset {
+  display: none;
+} */
+
+.setView{
+  display: contents
+}
+
 .cinner {
   position: relative;
   width: 100%;
@@ -414,7 +438,7 @@
 }
 
 .cfront {
-  background-color: #bbb;
+  /* background-color: green; */
   color: black;
 }
 

@@ -4,55 +4,63 @@ import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import styles2 from '@/src/styles/FlashCard.module.css'
 import React, { useEffect, useState } from 'react'
-import { Layout, Row, Col, Spin, notification, Card } from 'antd';
+import { Layout, Row, Col, Spin, notification, Card, Button, Modal } from 'antd';
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../../utils/methods'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { getDocuQuery, getData } from '@/src/firebase/firestore/getData'
 
-const { Header, Footer, Content } = Layout;
+const { Header, Footer, Content } = Layout; 
 
 export default function FlashCardSet() {
   const [kanji, setKanji] = useState([]);
   const router = useRouter()
-  const {query: {sett}} = router
+  const {query: {set}} = router
+  const newList = []
 
   const getKanji = async(setName) => {
     console.log(setName)
-    const list = await getDocuQuery('kanji', 'flashcardRef', '==', 'Test');
+    const list = await getDocuQuery('kanji', 'flashcardRef', '==', setName);
     setKanji(list)
   }
 
   const Flashcards = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
-      kanji.map(element => (
-        <div className={styles.ccard} id='ccard' onClick={()=>{      
-          if(document.getElementById('cinner').style.transform == 'rotateY(180deg)'){
-            document.getElementById('cinner').style.transform = 'rotateY(0deg)'
-          } else {
-            document.getElementById('cinner').style.transform = 'rotateY(180deg)'
-          }
-        }}>
-          <div id='cinner' className={styles.cinner}>
-            <div className={styles.cfront}>
-              <Card style={{backgroundColor:'green'}}>
-                <h2>{element.kanji}</h2>
-              </Card>
-            </div>
-            <div className={styles.cback}>
-              <Card>
-                <p>(1) {(element.meaning).join(', ')}</p>
-                <p>kun-yomi: {(element.kunyomi).join('、')}</p>
-                <p>On Yomi: {(element.onyomi).join('、')}</p>
-              </Card>
+      <>
+      {kanji.map(element => (
+        <div className={styles.Cardset} key={element.key} id={element.key}>
+          <div className={styles.ccard} id='ccard' onClick={()=>{
+            if(document.getElementById('cinner').style.transform == 'rotateY(180deg)'){
+              document.getElementById('cinner').style.transform = 'rotateY(0deg)'
+            } else {
+              document.getElementById('cinner').style.transform = 'rotateY(180deg)'
+            }
+          }}>
+            <div id='cinner' className={styles.cinner}>
+              <div className={styles.cfront}>
+                <Card>
+                  <h2>{element.kanji}</h2>
+                </Card>
+              </div>
+              <div className={styles.cback}>
+                <Card>
+                  <p>(1) {(element.meaning).join(', ')}</p>
+                  <p>kun-yomi: {(element.kunyomi).join('、')}</p>
+                  <p>On Yomi: {(element.onyomi).join('、')}</p>
+                  <p>key: {element.key}</p>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
-      ))
+      ))}
+      </>
     )
   }
 
   useEffect(()=>{
-    getKanji(sett)
+    getKanji(set)
   },[router])
 
   return (
@@ -69,9 +77,25 @@ export default function FlashCardSet() {
     <div className={styles.bar}></div>
     <Content>
       <center>
-        <Flashcards />
+        <div id='Cardset'>
+          <Flashcards />
+        </div>
+        <Button id ='bttn1' onClick={()=>{
+          let tst = document.getElementById('Cardset').firstChild
+          document.getElementById('Cardset').removeChild(tst)
+        }}><CheckOutlined/></Button>
+        <Button onClick={()=>{
+          let nodeLen = document.getElementById('Cardset').childNodes.length
+          if(nodeLen != 0){
+            let tst = document.getElementById('Cardset').firstChild
+            document.getElementById('Cardset').append(tst)
+          }
+          // console.log(document.getElementByI d('Cardset').childNodes.length)
+        }}><CloseOutlined/></Button>
+        {/* <div style={{height:'100px' }}></div> */}
       </center>
     </Content>
+    <div style={{height:'200px'}}></div>
     <CommonFoot/>
     </>
   )

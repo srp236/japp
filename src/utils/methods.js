@@ -14,11 +14,13 @@ export const flashCardDoc = async (uid) => {
 	let list1 = [{label:'new +',id:'New Card', data:[], key:0}]
 	let temp = []
 	const request = await getData('users', uid)
+	console.log('fire call user: ', request.data())
 	if(request){
 	// if(request.data().length > 0){
 		const response = request.data()['flashcardRefs']
 		if(response.length != 0){
-			const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)		
+			const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)
+			console.log('fire call flash: ', request2)		
 			response.forEach(element => {
 				request2.forEach(element2 => {
 					if(element2.flashcardRef == element){
