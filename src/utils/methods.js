@@ -1,7 +1,6 @@
-import {addData, createDoc, updateDataArray, updateData, updateMultiDocs} from '@/src/firebase/firestore/addData'
-import {delField, delDoc} from '@/src/firebase/firestore/delField'
-import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal, Tag, Input, Form } from 'antd';
-import { docsQuery, getAllDocs, getData, getDocuQuery } from '../firebase/firestore/getData';
+import { updateDataArray, updateData, updateMultiDocs} from '@/src/firebase/firestore/addData'
+import { Layout, Row, Col, Button, Card, Dropdown, message, Image, Modal, Tag, Input } from 'antd';
+import { getData, getDocuQuery } from '../firebase/firestore/getData';
 import { MoreOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router'
 import React, { useState, useRef, useEffect } from 'react'
@@ -57,7 +56,7 @@ export const storeCard = async (set, kanjichar) => {
 
 export async function getKanjiInfo(list) {
 	let i = 0, k, s, myList = []
-	console.log(list)
+	//check if in list already, if in list, don't need to get info, just add new song reference to it
 	while (i< (list).length) {
 		k=list[i]
 		await fetch(`https://kanjiapi.dev/v1/kanji/${k}`).then(r => r.json()).then(r=> s=r);
@@ -69,7 +68,7 @@ export async function getKanjiInfo(list) {
 			meaning:typeof s.meanings=='undefined'?' ':s.meanings, 
 			key: i, bl:false,tags:[]
 		})
-		console.log(typeof s.kun_readings)
+		// myList.push({kanji:s.kanji, jlpt:s.jlpt, kun:s.kun_readings, onr:s.on_readings, meaning: s.meanings, key: i, bl:false})
 		i++
 	}
 	return myList
@@ -217,9 +216,10 @@ export const KanjiList = ({info, uid}) => {
 						item.bl = !item.bl
 						item.bl? color = 'yellow': color='white'
 						const div = document.getElementById('lyrics')
+						div?
 						div.innerHTML = div.innerHTML.replaceAll(item.kanji,()=>{
 							return `<span style="background-color: ${color}">${item.kanji}</span>`
-						})
+						}):console.log('not on song page')
 					}}
 				className={styles.cardL}
 				>{item.kanji}</h2>

@@ -87,7 +87,8 @@ export default function Home() {
   const router = useRouter()
   const { authUser, loading } = useAuth();
   const auth = getAuth(app);
-  let list2 = [], optt = [], name = '', uid =''
+  let optt = [], name = '', uid =''
+  let list2 = [], list3 = []
   authUser?[name=authUser.name, uid = authUser.uid]:null
 
   const openNotificationWithIcon = (type) => {
@@ -119,81 +120,20 @@ export default function Home() {
 
   const extractK = async (values) => {
     setsLoading(true)
-    let list1 = [], list2 = [], list3 = []
-
     const list = isKanji(values.kanjiblock)
-    list.forEach(async element  => {
-      let temp = (await getData('kanji',element)).data()
+    list2 = await getKanjiInfo(list)
+    setkcard(list2)
+    setsLoading(false)
+
+    list2.forEach(async element  => {
+      let temp = (await getData('kanji',element.kanji)).data()
       if(temp == undefined){
-        list1.push(element)
-      } else {
-        // for already existing kanji
-        list2.push(temp)
+        list3.push(element)
       }
     });
-
-    //for new kanji
-    list3 = await getKanjiInfo(list1)
-    list3.forEach(element => {
-      list2.push(element)
-    });    
-
-    console.log(list1)
-    console.log(list2)
-    console.log(list3)
-    // createMultiDocs(list3,null,null,'')
-    // if(list2){
-    //   console.log(list2)
-    //   setkcard(list2)
-    //   setsLoading(false)
-    // }else{
-    //   console.log('error')
-    // }
-    // const list = isKanji(values.kanjiblock)
-    // let test = await getAllDocID('kanji')
-    // list.forEach(element => {
-    //   if(test.indexOf(element) > -1){
-    //     list1.push(element)
-    //   } else {
-    //     list2.push(element)
-    //   }
-    // });
-
-    // //for already existing kanji
-    // list1.forEach(async element => {
-    //   let knj = await getData('kanji', element)
-    //   list3.push(knj.data())
-    // });
-
-    // //for new kanji
-    // l2 = await getKanjiInfo(list2)
-    // l2.forEach(element => {
-    //   list3.push(element)
-    // });    
-    // createMultiDocs(l2,null,null,'')
-    // if(list3){
-    //   console.log(list3)
-    //   setkcard(list3)
-    //   console.log(kcard)
-    //   setsLoading(false)
-    // }else{
-    //   console.log(list3)
-    //   console.log('error')
-    // }
-    ///chnage logic herere plzzzzllzlzlzzl for card info
+    createMultiDocs(list3,null,null,'')
   }
-  // useEffect(()=>{
-  
-  //   if(authUser){
-  //     name = authUser.name
-  //     uid = authUser.uid
-  //     flashCardDoc(uid).then(e=>{
-  //    //  getTags(uid)
-  //   //  console.log(uid)
-  //       setsLoading(false)
-  //     })
-  //   }
-  // },[])
+
   useEffect(()=>{
     if(!loading && !authUser){
       router.push('/')
