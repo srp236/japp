@@ -183,14 +183,15 @@ export default function Home() {
   }
   useEffect(()=>{
   
-  //   // if(authUser){
-  //     // name = authUser.name
-  //     // uid = authUser.uid
-  //     flashCardDoc(authUser.uid).then(e=>{
-  //       //  getTags(uid)
+    if(authUser){
+      name = authUser.name
+      uid = authUser.uid
+      flashCardDoc(uid).then(e=>{
+     //  getTags(uid)
+    //  console.log(uid)
         setsLoading(false)
-  //     })
-  //   // }
+      })
+    }
   },[])
   // useEffect(()=>{
   //   if(!loading && !authUser){
@@ -224,7 +225,7 @@ export default function Home() {
       <Content>
         <Spin spinning={sloading}>
           <h1 className={styles.card}>ようこそ {name}!</h1>
-          {/* <Button onClick={async ()=>{
+          {/* <Button onClick={async ( )=>{
             let l = await getAllDocID('kanji')
             console.log(l.length)
           }}>len</Button> */}
@@ -267,7 +268,7 @@ export default function Home() {
                 </Form>
               </Card>
               <Card className={styles.card}>
-                <h1>Kanji Extractor 3000<InfoCircleOutlined size={10} /></h1>
+                <h1>Kanji Extractor 3000 <InfoCircleOutlined size={10} /></h1>
                 <Form className={styles.songForm} name='extractForm' onFinish={extractK}>
                   <Form.Item id='kanjiblock' name='kanjiblock' rules={[{min:0, message:'enter kanji to extract'}]}><TextArea autoSize={{minRows: 3}} placeholder='Enter text to have the kanji extracted...' style={{width:'40%'}}></TextArea></Form.Item>
                   <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>
