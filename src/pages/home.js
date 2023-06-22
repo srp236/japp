@@ -138,6 +138,7 @@ export default function Home() {
       list2.push(element)
     });    
 
+    console.log(list1)
     console.log(list2)
     console.log(list3)
     // createMultiDocs(list3,null,null,'')
@@ -181,31 +182,31 @@ export default function Home() {
     // }
     ///chnage logic herere plzzzzllzlzlzzl for card info
   }
-  useEffect(()=>{
-  
-    if(authUser){
-      name = authUser.name
-      uid = authUser.uid
-      flashCardDoc(uid).then(e=>{
-     //  getTags(uid)
-    //  console.log(uid)
-        setsLoading(false)
-      })
-    }
-  },[])
   // useEffect(()=>{
-  //   if(!loading && !authUser){
-  //     router.push('/')
-  //   } 
+  
   //   if(authUser){
   //     name = authUser.name
   //     uid = authUser.uid
-  //     flashCardDoc(authUser.uid).then(e=>{
-  //       //  getTags(uid)
+  //     flashCardDoc(uid).then(e=>{
+  //    //  getTags(uid)
+  //   //  console.log(uid)
   //       setsLoading(false)
   //     })
   //   }
-  // },[authUser,loading])
+  // },[])
+  useEffect(()=>{
+    if(!loading && !authUser){
+      router.push('/')
+    } 
+    if(authUser){
+      name = authUser.name
+      uid = authUser.uid
+      flashCardDoc(authUser.uid).then(e=>{
+        //  getTags(uid)
+        setsLoading(false)
+      })
+    }
+  },[authUser,loading])
 
   return (
   <>

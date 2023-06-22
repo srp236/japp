@@ -57,6 +57,7 @@ export const storeCard = async (set, kanjichar) => {
 
 export async function getKanjiInfo(list) {
 	let i = 0, k, s, myList = []
+	console.log(list)
 	while (i< (list).length) {
 		k=list[i]
 		await fetch(`https://kanjiapi.dev/v1/kanji/${k}`).then(r => r.json()).then(r=> s=r);

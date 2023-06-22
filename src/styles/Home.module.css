@@ -391,33 +391,17 @@
 .ccard {
   background-color: transparent;
   width: 300px;
-  height: 300px;
+  height: 400px;
   perspective: 1000px;
 }
-
-/* #cardset:not(:first-child){
-  visibility: hidden;
-} */
-/* 
-.cardset:not(:first-child){
-  visibility: hidden;
-} */
 
 .Cardset:not(:first-child){
   display: none;
 }
 /* 
-.Cardset:not(:nth-child(1)) {
-  visibility: hidden;
+.Cardset:not(:first-child){
+  margin-top: -395px;
 } */
-
-/* .Cardset {
-  display: none;
-} */
-
-.setView{
-  display: contents
-}
 
 .cinner {
   position: relative;
@@ -443,7 +427,41 @@
 }
 
 .cback {
-  background-color: #2980b9;
+  /* background-color: #2980b9; */
   color: white;
   transform: rotateY(180deg);
 }
+
+.cardF{
+  /* background-color: rgb(230,26,57); */
+  height:100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:50px;
+  border-radius: 0px;
+  border: none;
+}
+
+.cardB{
+  height:100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:medium;
+  border-radius: 0px;
+  border: none;
+  /* text-align: justify; */
+}
+
+.bttn {
+  margin-top: 50px;
+  margin: 50px 10px 0px 10px;
+}
+
+.moveCard {
+  /* visibility: hidden; */
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s linear;
+}
+

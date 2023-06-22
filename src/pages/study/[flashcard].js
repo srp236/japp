@@ -16,6 +16,7 @@ export default function FlashCardSet() {
   const router = useRouter()
   const {query: {set}} = router
   let list
+  const flashStatus = []
 
   const getKanji = async(setName) => {
     setName?[list = await getDocuQuery('kanji', 'flashcardRef', '==', setName),setKanji(list), setsLoading(false)]:console.log('wait')
@@ -24,7 +25,7 @@ export default function FlashCardSet() {
   const Hmm = () => {
     setsLoading(true);
     setTimeout(() => {
-      router.push('/results')
+      router.push('/studyResult')
     }, 1000);
   }
 
@@ -36,20 +37,20 @@ export default function FlashCardSet() {
       {kanji.map(element => (
         <div className={styles.Cardset} key={element.key}>
           <div className={styles.ccard} id='ccard' onClick={()=>{
-            if(document.getElementById('cinner').style.transform == 'rotateY(180deg)'){
+            if(document.getElementById('cinner').style.transform == 'rotateY(-180deg)'){
               document.getElementById('cinner').style.transform = 'rotateY(0deg)'
             } else {
-              document.getElementById('cinner').style.transform = 'rotateY(180deg)'
+              document.getElementById('cinner').style.transform = 'rotateY(-180deg)'
             }
           }}>
             <div id='cinner' className={styles.cinner}>
               <div className={styles.cfront}>
-                <Card>
+                <Card className={styles.cardF} style={{backgroundColor:'#' + Math.floor(Math.random()*16777215).toString(16)}}>
                   <h2>{element.kanji}</h2>
                 </Card>
               </div>
               <div className={styles.cback}>
-                <Card>
+                <Card className={styles.cardB}>
                   <p>(1) {(element.meaning).join(', ')}</p>
                   <p>kun-yomi: {(element.kunyomi).join('、')}</p>
                   <p>On Yomi: {(element.onyomi).join('、')}</p>
@@ -60,13 +61,20 @@ export default function FlashCardSet() {
         </div>
       ))}</div>
       {ncount != 0?<>
-        <Button id ='bttn1' onClick={()=>{
+        <Button className={[styles.bttnSpace, styles.bttn]} onClick={()=>{
           let tst = document.getElementById('Cardset').firstChild
-          document.getElementById('Cardset').removeChild(tst)
-          setncount(document.getElementById('Cardset').childElementCount)
+          // flashStatus.push({[tst.textContent[0]]:1})
+          // console.log(flashStatus)
+          // tst.classList.toggle(styles.moveCard)
+          // setTimeout(() => {
+            document.getElementById('Cardset').removeChild(tst)
+            setncount(document.getElementById('Cardset').childElementCount)
+          // }, 400)
         }}><CheckOutlined/></Button>
-        <Button onClick={()=>{
+        <Button className={[styles.bttnSpace, styles.bttn]} onClick={()=>{
           let tst = document.getElementById('Cardset').firstChild
+          flashStatus.push({[tst.textContent[0]]:-1})
+          console.log(flashStatus)
           document.getElementById('Cardset').append(tst)
         }}><CloseOutlined/></Button></>
         :Hmm()}
@@ -89,9 +97,10 @@ export default function FlashCardSet() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header className={styles.headerStyle} style={{backgroundColor:'white'}}>
-        <Image alt='logo' width={120} height={50} src="/images/logo_red.png" />
+        <Image onClick={()=>{router.push('/home')}} alt='logo' width={120} height={50} src="/images/logo_red.png" />
       </Header>
       <div className={styles.bar}></div>
+      <div style={{height:'200px'}}></div>
       <Content>
         <center>
           <Flashcards />
