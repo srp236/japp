@@ -215,7 +215,7 @@ export default function Home() {
                   <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>
                 </Form>
                 <div className={styles.homeCard}>
-                  {kcard?<KanjiList info={kcard} uid={uid}/>:<div>y</div>}
+                  {kcard?<KanjiList info={kcard} uid={uid} type='horz'/>:<div>y</div>}
                 </div>
               </Card>
             </div>

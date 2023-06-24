@@ -299,7 +299,7 @@
   position: absolute;
   visibility: hidden;
   /* z-index: 2; */
-  border: 1px solid black;
+  border: 1px solid rgba(0, 0, 0, 0.433);
   width: fit-content;
   background-color: white;
   padding: 2px 2px;

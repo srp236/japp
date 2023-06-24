@@ -67,6 +67,16 @@ export async function updateMultiDocs(colllection, list, field, data){
   await batch.commit();
 }
 
+export async function updateMultiNotes(colllection,id,data, list){
+  const batch = writeBatch(db);
+  list.forEach(element => {
+    const ref = doc(db, colllection, id);
+    batch.update(ref, {[element.id]: {[data]: {[element.strt]:element.strtVal}}})
+    batch.update(ref, {[element.id]: {[data]: {[element.end]:element.endVal}}})
+  });
+  await batch.commit();
+}
+
 export async function createDoc(colllection, id, data) {
     const response = await setDoc(doc(db, colllection, id), data,{merge: true})
     return response;

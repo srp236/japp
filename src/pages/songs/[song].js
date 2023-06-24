@@ -9,7 +9,7 @@ import { KanjiList, CommonFoot, flashCardDoc } from '@/src/utils/methods';
 import { useAuth } from '@/src/utils/AuthUserContext';
 const { Header } = Layout;
 import { MenuOutlined, DeleteOutlined, FileAddOutlined, PlusOutlined } from '@ant-design/icons';
-import { updateDataArray, updateNoteArray, addNote } from '@/src/firebase/firestore/addData';
+import { updateDataArray, updateNoteArray, addNote, updateMultiNotes} from '@/src/firebase/firestore/addData';
 
 const { TextArea } = Input;
 let hlp = {}, lyricH = '', selec = '', aR = '',tagList = [],annotationTags = []
@@ -19,7 +19,8 @@ export default function Song() {
   const [sloading, setsLoading] = useState(true);
   const [info, setInfo] = useState([]);
   const [txt, setTxt] = useState(undefined);
-  // const [annotationTags, setannotationTags] = useState(undefined);
+  const [nodel, setNodel] = useState();
+  // const [annotationTags, setannotationTags] = useState(undefined) ;
   const { authUser, loading } = useAuth();
   let name ='', uid ='', hi = undefined, tpo
   authUser?[name=authUser.name, uid = authUser.uid]:null
@@ -50,15 +51,19 @@ export default function Song() {
   const getLyricsKanji = async () => {
     if(fstat == 0) {
       const request = await getData('lyrics', artist)
-      console.log('fire call lyrics: ', request)
+      // console.log('fire call lyrics: ', request)
       const response = request.data()[title]
       document.getElementById('lyrics').innerText = response.lyrics
       lyricH = document.getElementById('lyrics').offsetHeight + 200
       const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
-      console.log('fire call kanji: ', request2)
+      // console.log('fire call kanji: ', request2)
       setInfo(request2)
       setsLoading(false)
-      // getAnnotations()
+      // if(document){
+      //   setNodel(document.getElementById('lyrics').childNodes)
+      //   console.log(nodel)
+      // }
+      getAnnotations()
     } else {
       const res = await scrapeData(fstat, title, artist)
       console.log(res)
@@ -79,12 +84,37 @@ export default function Song() {
     if(annotations){
       const annonKeys = Object.keys(annotations)
       const div = document.getElementById('lyrics').childNodes
+      let hl = 20
+      // let startList = Array.from(annonKeys, element=>hl<annotations[element].tst.start?annotations[element].tst.start:null)
+      // let startList = Array.from(annonKeys, element=> {if(hl<annotations[element].tst.start){return annotations[element].tst.start}})
+      // let startList = Array.from(annonKeys, element=>{if(hl<annotations[element].tst.start){annotations[element].tst.start}})
+      // console.log(startList)
+      // let minStart = Math.min.apply(Math, startList)
+      // let minAnnon, minEnd, diff
+
+      // for (let index = 0; index < annonKeys.length; index++) {
+      //   const element = annonKeys[index];
+      //   annotations[element].tst.start
+      //   if(annotations[element].tst.start == minStart){
+      //     minAnnon = element
+      //     minEnd = annotations[element].tst.end
+      //     break
+      //   } 
+      // }
+
+      // if(minStart == minEnd){
+      // } else {
+      //   diff = minEnd-minStart
+      // }
+      // console.log(diff)
       annonKeys.forEach(element => {
-        console.log(div)
         const range = document.createRange()
+        let nodeList = Array.from(div)
+      //   let sindex, eindex
+        
         if(range){
-          range.setStart(div.item(annotations[element].pos.start), annotations[element].pos.indexS)
-          range.setEnd(div.item(annotations[element].pos.end), annotations[element].pos.indexE)
+          range.setStart(div.item(annotations[element].tst.start), annotations[element].tst.indexS)
+          range.setEnd(div.item(annotations[element].tst.end), annotations[element].tst.indexE)
           if(range.toString().length != 0){
             let a = document.createElement("a")
             let span = document.createElement("span")
@@ -100,16 +130,20 @@ export default function Song() {
               }
               setTxt([annotations[element].note, lm])
             }
-            document.getElementById('lyrics').replaceWith()
+            // document.getElementById('lyrics').replaceWith() 
             range.surroundContents(span)
             range.surroundContents(a)
           }
         }
+        const newDiv = document.createElement("text");
+        console.log(nodeList)
       })
+      // console.log(div2)
     }
   }
 
   function getText() {
+    console.log(document.getElementById('lyrics').childNodes)
     if(window.getSelection().toString()=='\n' || window.getSelection().toString().length == 0){
       return
     }
@@ -117,7 +151,17 @@ export default function Song() {
     let range = selection.getRangeAt(0)
     let lyrics = document.getElementById('lyrics').childNodes
     let nodeList = Array.from(lyrics)
+    nodeList.indexOf(range.startContainer) == nodeList.indexOf(range.endContainer)?console.log('yup'):console.log('nay')
     hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer)}
+    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer),'txt':range.startContainer.textContent}
+    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startContainer.textContent, 'end':range.endContainer.textContent}
+    // console.log(range)
+    console.log(nodeList.indexOf(range.startContainer))
+    console.log(nodeList.indexOf(range.endContainer))
+    // console.log(lyrics)
+    // hlp = {'snodee':range.startContainer.textContent}
+    // hlp = {'snode':range.startContainer, 'eNode':range.endContainer}
+    // console.log(typeof(range.endContainer))
     selec=selection
     let rect = selection.getRangeAt(0).getBoundingClientRect()
     document.getElementById('tltp').style.visibility = "visible";
@@ -140,8 +184,9 @@ export default function Song() {
     document.getElementById('annon').style.visibility = "visible"
     document.getElementById('tltp').style.visibility = "hidden"
     aR=r
+    console.log(document.getElementById('lyrics').childNodes)
   }
-
+  
   const cancelAnnotation = (event) => {
     event.preventDefault()
     setsLoading(true)
@@ -150,7 +195,7 @@ export default function Song() {
       setsLoading(false)
     })
   }
-
+  
   const deleteAnnotation = (event) => {
     event.preventDefault()
     setsLoading(true)
@@ -160,29 +205,82 @@ export default function Song() {
       setsLoading(false)
     })
   }
- 
+  
   const handleAnn = async (values) => {
-    // setsLoading(true)
     try {
-      // let x = document.forms["createAnn"]["note"].value;
-      // if (x == "") {
-      //   alert("Enter a note before saving. . .");
-      //   return false;
-      // }
       setTxt(values.note)
-      let data= {[aR]:{'id':aR, 'note' :values.note, 'pos':hlp, 'tags':tagList}}
+      let data= {[aR]:{'id':aR, 'note' :values.note, 'tags':tagList, 'tst':hlp}}
+      // let data= {[aR]:{'id':aR, 'note' :values.note, 'pos':hlp, 'tags':tagList, 'tst':hlp}}
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
       document.getElementById('annon').style.visibility = "hidden"
       // setsLoading(false)
+      //////////////get existing values and do comparison//////////////////////////////////////////
+      // console.log(document.getElementById('lyrics').childNodes)
+      let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+      const annotations = request.data()
+      if(annotations){
+        console.log("annotations" ,annotations)
+        const annonKeys = Object.keys(annotations)
+        console.log(annonKeys)
+        // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
+        let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null)
+        let tmpList = []
+        const updateArr = []
+        // let minAnnon, minEnd, diff, currentDiff
+        console.log("starlist", startList)
+        if(startList.length != 0 || startList != undefined){
+          for (let index = 0; index < startList.length; index++) {
+            const element = startList[index];
+            console.log("element", element)
+            for (let index2 = 0; index < annonKeys.length; index2++) {
+              const element2 = annonKeys[index2];
+              // console.log(annotations[element2]['tst']) 
+              if(element != null){
+                if(annotations[element2]['tst'].start == element){
+                  tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
+                  break
+                }
+              }
+            }
+          }
+
+          tmpList.forEach(element => {
+            if(element.start == element.end){
+              let tdiff = element.end - element.start
+              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start+2, 'endVal':element.end+2}
+              updateArr.push(tmp)
+            } else if(element.start != element.end){
+              let tdiff = element.end - element.start
+              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff)+2, 'endVal':(element.end-tdiff)+2}
+              updateArr.push(tmp)
+            }
+          });
+          console.log(updateArr)
+          await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,tst,updateArr)
+        }
+      }
     } catch (error) {
+      console.log(error)
       alert("error occured, please try again")
     }
   }
+  useEffect(()=>{
+    setsLoading(true)
+    if(!loading && !authUser){
+      router.push('/')
+    }
+    if(authUser){
+      name = authUser.name  
+      uid = authUser.uid
+      flashCardDoc(uid).then(e=>{
+        getLyricsKanji()
+        // setNodel(document.getElementById('lyrics').childNodes)
+      })
+    }
+  },[router.query, authUser,loading])
   // useEffect(()=>{
   //   setsLoading(true)
-  //   if(!loading && !authUser){
-  //     router.push('/')
-  //   }
+    
   //   if(authUser){
   //     name = authUser.name  
   //     uid = authUser.uid
@@ -190,18 +288,7 @@ export default function Song() {
   //       getLyricsKanji()
   //     })
   //   }
-  // },[router.query, authUser,loading])
-  useEffect(()=>{
-    setsLoading(true)
-    
-    if(authUser){
-      name = authUser.name  
-      uid = authUser.uid
-      flashCardDoc(uid).then(e=>{
-        getLyricsKanji()
-      })
-    }
-  },[])
+  // },[])
 
   // useEffect(()=>{
   //   if(authUser){
@@ -228,7 +315,7 @@ export default function Song() {
         <div className={styles.bar}></div>
         <div className={styles.lbody}>
           <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}}>
-            <KanjiList info={info} uid={uid}/>
+            <KanjiList info={info} uid={uid} pageType=''/>
           </Card>
           <Card style={{width:'60%'}}>
           {/* <Card> */}
@@ -249,9 +336,9 @@ export default function Song() {
                 </Card>:<Card id='annon' className={styles.annon}>
                   <Form name='createAnn' onFinish={handleAnn}>
                     <Form.Item id='note' name='note' rules={[{min:0, message:'please add note'}]}><TextArea autoSize={{minRows: 3}} style={{}}></TextArea></Form.Item>
-                    <div styles={{display:'flex', flexDirection:'column'}}>
-                      <Form.Item><Button type='primary' htmlType="submit">Save</Button></Form.Item>
-                      <Form.Item><Button type='primary' htmlType="submit">Cancel</Button></Form.Item>
+                    <div styles={{display:'flex', flexDirection:'row'}}>
+                      <Form.Item><Button style={{margin:'0px 0px'}} type='primary' htmlType="submit">Save</Button></Form.Item>
+                      <Form.Item><Button style={{margin:'0px 0px'}} type='primary' onClick={cancelAnnotation}>Cancel</Button></Form.Item>
                     </div>
                   </Form>
                   {/* <form name='createAnn' onSubmit={handleAnn}>
@@ -265,9 +352,9 @@ export default function Song() {
               </div>
             </div>
           </Card> 
-          <button id='tltp' onClick={createAnnotation} className={styles.tltp}>
+          <Button id='tltp' onClick={createAnnotation} className={styles.tltp}>
             Create Annotation
-          </button>
+          </Button>
         </div>
       <CommonFoot/>
       </Layout>
@@ -275,3 +362,69 @@ export default function Song() {
     </>
   );
 }
+
+ // for (let index = 0; index < annonKeys.length; index++) {
+      //   const element = annonKeys[index];
+      //   startList.push(annotations[element].tst.start)
+      //   // console.log(annotations[element].tst.start)
+      //   // let str = annotations[element].tst.start
+      //   // let en = annotations[element].tst.end
+      //   // if(str < annotations[annonKeys[index+1]].tst.start){
+      //   //   console.log('yes')
+      //   //   console.log(annotations[element].tst.start)
+      //   //   break
+      //   // }
+      // }
+      // console.log(startList)
+      // console.log(Math.min.apply(Math,startList))
+
+      // for (let index = 0; index < nodeList.length; index++) {
+        //   const element2 = nodeList[index];
+          // if(element2.textContent == annotations[element].pos.txt)
+          // {
+          //   console.log('fonudit')
+          //   if (index >= annotations[element].pos.start){
+          //     sindex = index
+          //     break
+          //   }
+          // }
+          // if(element2.textContent == annotations[element].tst.txt)
+          // {
+            // console.log('fonudit')
+            // if (index >= annotations[element].pos.start){
+            //   eindex = index
+            //   break
+            // }
+        //   }
+        // }
+                
+        // hlp.start == hlp.end?currentDiff = hlp.start: currentDiff = hlp.end - hlp.start
+        // let minStart = Math.min.apply(Math, startList)
+        // for (let index = 0; index < annonKeys.length; index++) {
+        //   const element = annonKeys[index];
+        //   if(annotations[element].tst.start == minStart){
+        //     minAnnon = element
+        //     minEnd = annotations[element].tst.end
+        //     break
+        //   } 
+        // }
+
+        // if(hlp.start < minstart){
+        //   currentDiff = hlp.end - hlp.start
+
+        //   for (let index = 0; index < annonKeys.length; index++) {
+        //     const element = annonKeys[index];
+        //     const vari = annotations[element].tst
+        //     let tmp = {'id':element, 'strt':'start','end':'end','strtVal':vari.start-currentDiff, 'endVal':vari.end-currentDiff}
+        //     updateArr.push(tmp)
+        //   }
+
+          //updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')
+
+        // }
+
+        // if(minStart == minEnd){
+        // } else {
+        //   diff = minEnd-minStart
+        // }
+        // console.log(diff)

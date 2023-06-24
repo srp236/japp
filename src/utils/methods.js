@@ -13,13 +13,13 @@ export const flashCardDoc = async (uid) => {
 	let list1 = [{label:'new +',id:'New Card', data:[], key:0}]
 	let temp = []
 	const request = await getData('users', uid)
-	console.log('fire call user: ', request.data())
+	// console.log('fire call user: ', request.data())
 	if(request){
 	// if(request.data().length > 0){
 		const response = request.data()['flashcardRefs']
 		if(response.length != 0){
 			const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)
-			console.log('fire call flash: ', request2)		
+			// console.log('fire call flash: ', request2)		
 			response.forEach(element => {
 				request2.forEach(element2 => {
 					if(element2.flashcardRef == element){
@@ -194,7 +194,7 @@ export function Drop({kanji, icon, dataaa, uid}) {
   )
 }
 
-export const KanjiList = ({info, uid}) => {
+export const KanjiList = ({info, uid, pageType}) => {
 	const [curr, setCurrent] = useState('');
 	const [inputValue, setInputValue] = useState('')
 	const inputRef = useRef(null);
@@ -206,6 +206,9 @@ export const KanjiList = ({info, uid}) => {
 
 	return (
 		<>
+		{/* <div style={{display:'flex', flexDirection:'row', overflowX:'scroll'}}> */}
+		<div>
+			{/* {pageType=='horz'?:console.log('hihi')} */}
 		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
 		{info.map(item=>(
 			<>
@@ -252,6 +255,7 @@ export const KanjiList = ({info, uid}) => {
 			</Card>
 			</>
 		))}
+		</div>
 		</>
 	)
 }
