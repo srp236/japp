@@ -93,7 +93,7 @@ export const FlashSets = (user) => {
   };
 	return (
 		items.map(element => (
-			element.id == 'New Card'?<div>
+			element.id == 'New Card'?<div key={element.key}>
 			<Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{setIsModalOpen(true)}}>
 				<h3>
 					<PlusOutlined /> Create Set
@@ -107,7 +107,7 @@ export const FlashSets = (user) => {
 				</form>
 			</Modal>
 			</div>
-		:<Card className={styles.flashCard} cover={<div><Image preview={false} className={styles.ig} width={200} height={200} src='/images/profile.jpg' alt='flashcard cover'/>
+		:<Card className={styles.flashCard} key={element.key} cover={<div><Image preview={false} className={styles.ig} width={200} height={200} src='/images/profile.jpg' alt='flashcard cover'/>
 			<div className={styles.igtext}>
 					<h4 style={{fontWeight:'900'}} >{element.id}</h4>
 					<p style={{fontStyle:'italic'}}>{element.data.length} card(s)</p>
@@ -211,9 +211,9 @@ export const KanjiList = ({info, uid, pageType}) => {
 			{/* {pageType=='horz'?:console.log('hihi')} */}
 		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
 		{info.map(item=>(
-			<>
-			<Card key={item.key} style={{width:'500px', margin:'20px 0px'}}>
-				<div style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
+			<div key={item.key}>
+			<Card style={{width:'500px', margin:'20px 0px'}}>
+				<div key={item.key} style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
 					<h2 onClick={()=>{
 						let color
 						item.bl = !item.bl
@@ -253,7 +253,7 @@ export const KanjiList = ({info, uid, pageType}) => {
 				</div>
 				<Drop kanji={item.kanji} icon={<MoreOutlined onClick={(e) => e.preventDefault()} style={{color:'rgb(230,26,57)', fontSize:'20px', position:'absolute', right:'10px', top:'20px'}}/>} dataaa='' uid={uid}></Drop>
 			</Card>
-			</>
+			</div>
 		))}
 		</div>
 		</>
