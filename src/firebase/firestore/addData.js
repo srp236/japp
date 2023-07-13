@@ -71,8 +71,8 @@ export async function updateMultiNotes(colllection,id,data, list){
   const batch = writeBatch(db);
   list.forEach(element => {
     const ref = doc(db, colllection, id);
-    batch.update(ref, {[element.id]: {[data]: {[element.strt]:element.strtVal}}})
-    batch.update(ref, {[element.id]: {[data]: {[element.end]:element.endVal}}})
+    batch.set(ref, {[element.id.id]: {[data]: {[element.strt]:element.strtVal, [element.end]:element.endVal}}},{merge:true})
+    // batch.update(ref, {[element.id.id]: {[data]: {[element.end]:element.endVal}}})
   });
   await batch.commit();
 }
