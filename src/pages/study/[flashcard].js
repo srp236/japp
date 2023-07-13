@@ -23,6 +23,8 @@ export default function FlashCardSet() {
   }
 
   const Hmm = () => {
+    document.getElementById('cntr').style.visibility = "hidden"
+    // document.getElementById('cntr').style.display = 'none'
     setsLoading(true);
     setTimeout(() => {
       router.push('/studyResult')
@@ -102,12 +104,12 @@ export default function FlashCardSet() {
       <div className={styles.bar}></div>
       <div style={{height:'200px'}}></div>
       <Content>
-        <center>
+        <center id='cntr'>
           <Flashcards />
         </center>
       </Content>
       <div style={{height:'200px'}}></div>
-      <CommonFoot/>
+      {/* <CommonFoot/> */}
       </Spin>
     </>
   )
