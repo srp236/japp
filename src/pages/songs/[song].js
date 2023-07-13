@@ -84,37 +84,19 @@ export default function Song() {
     if(annotations){
       const annonKeys = Object.keys(annotations)
       const div = document.getElementById('lyrics').childNodes
-      let hl = 20
-      // let startList = Array.from(annonKeys, element=>hl<annotations[element].tst.start?annotations[element].tst.start:null)
-      // let startList = Array.from(annonKeys, element=> {if(hl<annotations[element].tst.start){return annotations[element].tst.start}})
-      // let startList = Array.from(annonKeys, element=>{if(hl<annotations[element].tst.start){annotations[element].tst.start}})
-      // console.log(startList)
-      // let minStart = Math.min.apply(Math, startList)
-      // let minAnnon, minEnd, diff
-
-      // for (let index = 0; index < annonKeys.length; index++) {
-      //   const element = annonKeys[index];
-      //   annotations[element].tst.start
-      //   if(annotations[element].tst.start == minStart){
-      //     minAnnon = element
-      //     minEnd = annotations[element].tst.end
-      //     break
-      //   } 
-      // }
-
-      // if(minStart == minEnd){
-      // } else {
-      //   diff = minEnd-minStart
-      // }
-      // console.log(diff)
+      let nodeList = Array.from(div)
+      
       annonKeys.forEach(element => {
+        // console.log("starting node: ", div[annotations[element].tst.start].textContent)
         const range = document.createRange()
-        let nodeList = Array.from(div)
-      //   let sindex, eindex
-        
+        // console.log(nodeList[annotations[element].tst.start])
+        //   let sindex, eindex
         if(range){
-          range.setStart(div.item(annotations[element].tst.start), annotations[element].tst.indexS)
-          range.setEnd(div.item(annotations[element].tst.end), annotations[element].tst.indexE)
+        range.setStart(nodeList[annotations[element].tst.start], annotations[element].tst.indexS)
+        range.setEnd(nodeList[annotations[element].tst.end], annotations[element].tst.indexE)
+        // range.setStart(div.item(annotations[element].tst.start), annotations[element].tst.indexS)
+        // range.setEnd(div.item(annotations[element].tst.end), annotations[element].tst.indexE)
+        // console.log(range)
           if(range.toString().length != 0){
             let a = document.createElement("a")
             let span = document.createElement("span")
@@ -130,15 +112,12 @@ export default function Song() {
               }
               setTxt([annotations[element].note, lm])
             }
-            // document.getElementById('lyrics').replaceWith() 
             range.surroundContents(span)
             range.surroundContents(a)
           }
         }
-        const newDiv = document.createElement("text");
-        console.log(nodeList)
+        // console.log(nodeList)
       })
-      // console.log(div2)
     }
   }
 
@@ -152,12 +131,12 @@ export default function Song() {
     let lyrics = document.getElementById('lyrics').childNodes
     let nodeList = Array.from(lyrics)
     nodeList.indexOf(range.startContainer) == nodeList.indexOf(range.endContainer)?console.log('yup'):console.log('nay')
-    hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer)}
+    //If hlp.indexs is not 0, then need to subtract one more from 
+    hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startOffset==0?nodeList.indexOf(range.startContainer)-4:nodeList.indexOf(range.startContainer)-6, 'end':range.startOffset==0?nodeList.indexOf(range.endContainer)-4:nodeList.indexOf(range.endContainer)-6}
     // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer),'txt':range.startContainer.textContent}
     // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startContainer.textContent, 'end':range.endContainer.textContent}
     // console.log(range)
-    console.log(nodeList.indexOf(range.startContainer))
-    console.log(nodeList.indexOf(range.endContainer))
+    console.log(hlp)
     // console.log(lyrics)
     // hlp = {'snodee':range.startContainer.textContent}
     // hlp = {'snode':range.startContainer, 'eNode':range.endContainer}
@@ -217,13 +196,14 @@ export default function Song() {
       //////////////get existing values and do comparison//////////////////////////////////////////
       // console.log(document.getElementById('lyrics').childNodes)
       let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+      console.log('request: ', request)
       const annotations = request.data()
       if(annotations){
         console.log("annotations" ,annotations)
         const annonKeys = Object.keys(annotations)
-        console.log(annonKeys)
+        console.log("annotationskeys: ", annonKeys)
         // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
-        let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null)
+        let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null).filter(val => val != null)
         let tmpList = []
         const updateArr = []
         // let minAnnon, minEnd, diff, currentDiff
@@ -234,29 +214,35 @@ export default function Song() {
             console.log("element", element)
             for (let index2 = 0; index < annonKeys.length; index2++) {
               const element2 = annonKeys[index2];
-              // console.log(annotations[element2]['tst']) 
-              if(element != null){
+              console.log(annotations[element2]['tst']) 
+          //     if(element != null){
                 if(annotations[element2]['tst'].start == element){
                   tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
                   break
                 }
-              }
+          //     }
             }
           }
-
+          console.log('tmplist', tmpList)
           tmpList.forEach(element => {
-            if(element.start == element.end){
-              let tdiff = element.end - element.start
-              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start+2, 'endVal':element.end+2}
+            console.log(hlp)
+              // let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
+              // updateArr.push(tmp)
+            if(hlp.start == hlp.end){
+              console.log('is sanammama')
+              // let tdiff = element.end - element.start
+              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
               updateArr.push(tmp)
-            } else if(element.start != element.end){
-              let tdiff = element.end - element.start
-              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff)+2, 'endVal':(element.end-tdiff)+2}
+            } else if(hlp.start != hlp.end){
+              console.log('not same')
+              let tdiff = hlp.end - hlp.start
+              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff), 'endVal':(element.end-tdiff)}
+              console.log(tmp)
               updateArr.push(tmp)
             }
           });
-          console.log(updateArr)
-          await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,tst,updateArr)
+          console.log('iparr', updateArr)
+          await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
         }
       }
     } catch (error) {
@@ -314,7 +300,7 @@ export default function Song() {
         </Header>
         <div className={styles.bar}></div>
         <div className={styles.lbody}>
-          <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}}>
+          <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}} suppressHydrationWarning>
             <KanjiList info={info} uid={uid} pageType=''/>
           </Card>
           <Card style={{width:'60%'}}>
@@ -364,22 +350,22 @@ export default function Song() {
 }
 
  // for (let index = 0; index < annonKeys.length; index++) {
-      //   const element = annonKeys[index];
-      //   startList.push(annotations[element].tst.start)
-      //   // console.log(annotations[element].tst.start)
-      //   // let str = annotations[element].tst.start
-      //   // let en = annotations[element].tst.end
-      //   // if(str < annotations[annonKeys[index+1]].tst.start){
-      //   //   console.log('yes')
-      //   //   console.log(annotations[element].tst.start)
-      //   //   break
-      //   // }
-      // }
-      // console.log(startList)
-      // console.log(Math.min.apply(Math,startList))
+    //   const element = annonKeys[index];
+    //   startList.push(annotations[element].tst.start)
+    //   // console.log(annotations[element].tst.start)
+    //   // let str = annotations[element].tst.start
+    //   // let en = annotations[element].tst.end
+    //   // if(str < annotations[annonKeys[index+1]].tst.start){
+    //   //   console.log('yes')
+    //   //   console.log(annotations[element].tst.start)
+    //   //   break
+    //   // }
+    // }
+    // console.log(startList)
+    // console.log(Math.min.apply(Math,startList))
 
-      // for (let index = 0; index < nodeList.length; index++) {
-        //   const element2 = nodeList[index];
+    // for (let index = 0; index < nodeList.length; index++) {
+      //   const element2 = nodeList[index];
           // if(element2.textContent == annotations[element].pos.txt)
           // {
           //   console.log('fonudit')
@@ -428,3 +414,27 @@ export default function Song() {
         //   diff = minEnd-minStart
         // }
         // console.log(diff)
+
+
+              // let startList = Array.from(annonKeys, element=>hl<annotations[element].tst.start?annotations[element].tst.start:null)
+      // let startList = Array.from(annonKeys, element=> {if(hl<annotations[element].tst.start){return annotations[element].tst.start}})
+      // let startList = Array.from(annonKeys, element=>{if(hl<annotations[element].tst.start){annotations[element].tst.start}})
+      // console.log(startList)
+      // let minStart = Math.min.apply(Math, startList)
+      // let minAnnon, minEnd, diff
+
+      // for (let index = 0; index < annonKeys.length; index++) {
+      //   const element = annonKeys[index];
+      //   annotations[element].tst.start
+      //   if(annotations[element].tst.start == minStart){
+      //     minAnnon = element
+      //     minEnd = annotations[element].tst.end
+      //     break
+      //   } 
+      // }
+
+      // if(minStart == minEnd){
+      // } else {
+      //   diff = minEnd-minStart
+      // }
+      // console.log(diff)
