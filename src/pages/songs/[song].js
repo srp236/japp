@@ -82,6 +82,7 @@ export default function Song() {
     let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
     const annotations = request.data()
     if(annotations){
+      console.log(annotations)
       const annonKeys = Object.keys(annotations)
       const div = document.getElementById('lyrics').childNodes
       let nodeList = Array.from(div)
@@ -130,9 +131,12 @@ export default function Song() {
     let range = selection.getRangeAt(0)
     let lyrics = document.getElementById('lyrics').childNodes
     let nodeList = Array.from(lyrics)
+    console.log(nodeList)
     nodeList.indexOf(range.startContainer) == nodeList.indexOf(range.endContainer)?console.log('yup'):console.log('nay')
     //If hlp.indexs is not 0, then need to subtract one more from 
-    hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startOffset==0?nodeList.indexOf(range.startContainer)-4:nodeList.indexOf(range.startContainer)-6, 'end':range.startOffset==0?nodeList.indexOf(range.endContainer)-4:nodeList.indexOf(range.endContainer)-6}
+    hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer)}
+    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer)-4, 'end':nodeList.indexOf(range.endContainer)-4}
+    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startOffset==0?nodeList.indexOf(range.startContainer)-4:nodeList.indexOf(range.startContainer)-5, 'end':range.startOffset==0?nodeList.indexOf(range.endContainer)-4:nodeList.indexOf(range.endContainer)-5}
     // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer),'txt':range.startContainer.textContent}
     // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startContainer.textContent, 'end':range.endContainer.textContent}
     // console.log(range)
@@ -195,56 +199,56 @@ export default function Song() {
       // setsLoading(false)
       //////////////get existing values and do comparison//////////////////////////////////////////
       // console.log(document.getElementById('lyrics').childNodes)
-      let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
-      console.log('request: ', request)
-      const annotations = request.data()
-      if(annotations){
-        console.log("annotations" ,annotations)
-        const annonKeys = Object.keys(annotations)
-        console.log("annotationskeys: ", annonKeys)
-        // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
-        let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null).filter(val => val != null)
-        let tmpList = []
-        const updateArr = []
-        // let minAnnon, minEnd, diff, currentDiff
-        console.log("starlist", startList)
-        if(startList.length != 0 || startList != undefined){
-          for (let index = 0; index < startList.length; index++) {
-            const element = startList[index];
-            console.log("element", element)
-            for (let index2 = 0; index < annonKeys.length; index2++) {
-              const element2 = annonKeys[index2];
-              console.log(annotations[element2]['tst']) 
-          //     if(element != null){
-                if(annotations[element2]['tst'].start == element){
-                  tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
-                  break
-                }
-          //     }
-            }
-          }
-          console.log('tmplist', tmpList)
-          tmpList.forEach(element => {
-            console.log(hlp)
-              // let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
-              // updateArr.push(tmp)
-            if(hlp.start == hlp.end){
-              console.log('is sanammama')
-              // let tdiff = element.end - element.start
-              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
-              updateArr.push(tmp)
-            } else if(hlp.start != hlp.end){
-              console.log('not same')
-              let tdiff = hlp.end - hlp.start
-              let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff), 'endVal':(element.end-tdiff)}
-              console.log(tmp)
-              updateArr.push(tmp)
-            }
-          });
-          console.log('iparr', updateArr)
-          await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
-        }
-      }
+      // let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+      // console.log('request: ', request)
+      // const annotations = request.data()
+      // if(annotations){
+      //   console.log("annotations" ,annotations)
+      //   const annonKeys = Object.keys(annotations)
+      //   console.log("annotationskeys: ", annonKeys)
+      //   // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
+      //   let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null).filter(val => val != null)
+      //   let tmpList = []
+      //   const updateArr = []
+      //   // let minAnnon, minEnd, diff, currentDiff
+      //   console.log("starlist", startList)
+      //   if(startList.length != 0 || startList != undefined){
+      //     for (let index = 0; index < startList.length; index++) {
+      //       const element = startList[index];
+      //       console.log("element", element)
+      //       for (let index2 = 0; index < annonKeys.length; index2++) {
+      //         const element2 = annonKeys[index2];
+      //         console.log(annotations[element2]['tst']) 
+      //     //     if(element != null){
+      //           if(annotations[element2]['tst'].start == element){
+      //             tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
+      //             break
+      //           }
+      //     //     }
+      //       }
+      //     }
+      //     console.log('tmplist', tmpList)
+      //     tmpList.forEach(element => {
+      //       console.log(hlp)
+      //         // let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
+      //         // updateArr.push(tmp)
+      //       if(hlp.start == hlp.end){
+      //         console.log('is sanammama')
+      //         // let tdiff = element.end - element.start
+      //         let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
+      //         updateArr.push(tmp)
+      //       } else if(hlp.start != hlp.end){
+      //         console.log('not same')
+      //         let tdiff = hlp.end - hlp.start
+      //         let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff), 'endVal':(element.end-tdiff)}
+      //         console.log(tmp)
+      //         updateArr.push(tmp)
+      //       }
+      //     });
+      //     console.log('iparr', updateArr)
+      //     await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
+      //   }
+      // }
     } catch (error) {
       console.log(error)
       alert("error occured, please try again")

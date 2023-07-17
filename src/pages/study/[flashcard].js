@@ -17,6 +17,7 @@ export default function FlashCardSet() {
   const {query: {set}} = router
   let list
   const flashStatus = []
+  const kanjiStatus = {}
 
   const getKanji = async(setName) => {
     setName?[list = await getDocuQuery('kanji', 'flashcardRef', '==', setName),setKanji(list), setsLoading(false)]:console.log('wait')
@@ -27,7 +28,8 @@ export default function FlashCardSet() {
     // document.getElementById('cntr').style.display = 'none'
     setsLoading(true);
     setTimeout(() => {
-      router.push('/studyResult')
+      console.log(kanjiStatus)
+      router.push({pathname:'/studyResult', query:{'kstatus':kanjiStatus, 'ts':'this is a tst'}})
     }, 1000);
   }
 
@@ -75,9 +77,11 @@ export default function FlashCardSet() {
         }}><CheckOutlined/></Button>
         <Button className={[styles.bttnSpace, styles.bttn]} onClick={()=>{
           let tst = document.getElementById('Cardset').firstChild
-          flashStatus.push({[tst.textContent[0]]:-1})
-          console.log(flashStatus)
+          // flashStatus.push({[tst.textContent[0]]:-1})
+          // console.log(flashStatus)
           document.getElementById('Cardset').append(tst)
+          kanjiStatus[tst.textContent[0]] = (kanjiStatus[tst.textContent[0]]>=1? kanjiStatus[tst.textContent[0]] +=1 : 1)
+          console.log("curr restlss: ",kanjiStatus)
         }}><CloseOutlined/></Button></>
         :Hmm()}
       </>

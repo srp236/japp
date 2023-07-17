@@ -10,8 +10,10 @@ const { Header, Footer, Content } = Layout;
 
 export default function Results () {
   const [sloading, setsLoading] = useState(true);
-
   const router = useRouter()
+  const {query: {kstatus, ts}} = router 
+
+
   useEffect(()=>{
     setTimeout(() => {
       setsLoading(false)
@@ -38,7 +40,8 @@ export default function Results () {
         title="Study Complete!"
         subTitle="You have completed this flashcard set. Go to the dashboard to see your progress."
         extra={[
-          <Button type="primary" onClick={()=>{router.push('/home')}}>Go Home</Button>,
+          <Button type="primary" onClick={()=>{console.log(kstatus)}}>Go Home</Button>,
+          // <Button type="primary" onClick={()=>{router.push('/home')}}>Go Home</Button>,
           <Button onClick={()=>{router.back()}}>Study Again</Button>,
         ]}
       />
