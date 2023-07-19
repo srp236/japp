@@ -41,8 +41,8 @@ export default function Results () {
         title="Study Complete!"
         subTitle="You have completed this flashcard set. Go to the dashboard to see your progress."
         extra={[
-          <Button type="primary" onClick={()=>{SpacedRepetition()}}>Go Home</Button>,
-          // <Button type="primary" onClick={()=>{router.push('/home')}}>Go Home</Button>,
+          //<Button type="primary" onClick={()=>{SpacedRepetition()}}>Go Home</Button>,
+          <Button type="primary" onClick={()=>{router.push('/home')}}>Go Home</Button>,
           <Button onClick={()=>{router.back()}}>Study Again</Button>,
         ]}
       />

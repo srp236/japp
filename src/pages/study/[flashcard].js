@@ -16,7 +16,7 @@ export default function FlashCardSet() {
   const router = useRouter()
   const {query: {set}} = router
   let list
-  const flashStatus = []
+  const colorList = ['c825fa','25fa65','25fa65','257afa','fa7325','fafa25','f07175','68deda','ff0000','91ff00']
   const kanjiStatus = {}
 
   const getKanji = async(setName) => {
@@ -41,15 +41,14 @@ export default function FlashCardSet() {
       {kanji.map(element => (
         <div className={styles.Cardset} key={element.key}>
           <div className={styles.ccard} id='ccard' onClick={()=>{
-            if(document.getElementById('cinner').style.transform == 'rotateY(-180deg)'){
-              document.getElementById('cinner').style.transform = 'rotateY(0deg)'
-            } else {
-              document.getElementById('cinner').style.transform = 'rotateY(-180deg)'
-            }
+            document.getElementById('cinner').style.transform == 'rotateY(-180deg)'?
+            document.getElementById('cinner').style.transform = 'rotateY(0deg)':
+            document.getElementById('cinner').style.transform = 'rotateY(-180deg)'
           }}>
             <div id='cinner' className={styles.cinner}>
               <div className={styles.cfront}>
-                <Card className={styles.cardF} style={{backgroundColor:'#' + Math.floor(Math.random()*16777215).toString(16)}}>
+                <Card className={styles.cardF} style={{backgroundColor:'#' + colorList[Math.floor(Math.random()*colorList.length)]}}>
+                {/* <Card className={styles.cardF} style={{backgroundColor:'#' + Math.floor(Math.random()*16777215).toString(16)}}> */}
                   <h2>{element.kanji}</h2>
                 </Card>
               </div>
@@ -76,6 +75,7 @@ export default function FlashCardSet() {
           // }, 400)
         }}><CheckOutlined/></Button>
         <Button className={[styles.bttnSpace, styles.bttn]} onClick={()=>{
+          document.getElementById('cinner').style.transform = 'rotateY(0deg)'
           let tst = document.getElementById('Cardset').firstChild
           // flashStatus.push({[tst.textContent[0]]:-1})
           // console.log(flashStatus)
