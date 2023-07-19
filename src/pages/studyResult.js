@@ -5,6 +5,7 @@ import { Spin, Button, Result, Skeleton, Layout } from 'antd';
 import { CommonFoot } from '../utils/methods'
 import Image from 'next/image'
 import styles from '@/src/styles/Home.module.css'
+import { SpacedRepetition } from '../utils/methods';
 
 const { Header, Footer, Content } = Layout; 
 
@@ -40,7 +41,7 @@ export default function Results () {
         title="Study Complete!"
         subTitle="You have completed this flashcard set. Go to the dashboard to see your progress."
         extra={[
-          <Button type="primary" onClick={()=>{console.log(kstatus)}}>Go Home</Button>,
+          <Button type="primary" onClick={()=>{SpacedRepetition()}}>Go Home</Button>,
           // <Button type="primary" onClick={()=>{router.push('/home')}}>Go Home</Button>,
           <Button onClick={()=>{router.back()}}>Study Again</Button>,
         ]}

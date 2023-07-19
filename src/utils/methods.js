@@ -7,19 +7,17 @@ import React, { useState, useRef, useEffect } from 'react'
 import styles from '@/src/styles/Home.module.css'
 
 const { Footer } = Layout;
-let items = [{label:'new +',id:'New Card', data:[], key:0}];
+let items = [{type:'divider', id:'div'}];
 
 export const flashCardDoc = async (uid) => {
-	let list1 = [{label:'new +',id:'New Card', data:[], key:0}]
+	let list1 = [{label:'Add Card to Set',id:'desc', type:'group', key:1},{type:'divider', id:'div'}]
 	let temp = []
 	const request = await getData('users', uid)
-	// console.log('fire call user: ', request.data())
 	if(request){
 	// if(request.data().length > 0){
 		const response = request.data()['flashcardRefs']
 		if(response.length != 0){
 			const request2 = await getDocuQuery('kanji', 'flashcardRef', 'in', response)
-			// console.log('fire call flash: ', request2)		
 			response.forEach(element => {
 				request2.forEach(element2 => {
 					if(element2.flashcardRef == element){
@@ -27,11 +25,12 @@ export const flashCardDoc = async (uid) => {
 					}
 				});
 				let i=list1.length
+				console.log('tjs s:', i)
 				list1.push({label:element, id:element, key:i, data:temp})
 				temp = []
 			});
 			items = list1
-			list1 = [{label:'new +',id:'New Card', data:[]}]
+			list1 = [{type:'divider', id:'div'}]
 		}
 	}
 }
@@ -92,33 +91,36 @@ export const FlashSets = (user) => {
     setIsModalOpen(false);
   };
 	return (
-		items.map(element => (
-			element.id == 'New Card'?<div key={element.key}>
-			<Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{setIsModalOpen(true)}}>
-				<h3>
-					<PlusOutlined /> Create Set
-				</h3>
-			</Button>
-			<Modal title="Create New Flashcard Set" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-				<form name='createsetform' style={{display:'flex', flexDirection:'column'}}>
-					<label>Title of Set</label>
-					<Input type='text' id='setTitle' name='setTitle'/>
-					{/* add tags option for sorting also allow for image selection amongst specific options or user opload */}
-				</form>
-			</Modal>
+		<>
+			<div key='0'>
+				<Button style={{borderStyle: 'dashed', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}} className={[styles.flashCard, styles.cardInt]} onClick={()=>{setIsModalOpen(true)}}>
+					<h3>
+						<PlusOutlined /> Create Set
+					</h3>
+				</Button>
+				<Modal title="Create New Flashcard Set" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+					<form name='createsetform' style={{display:'flex', flexDirection:'column'}}>
+						<label>Title of Set</label>
+						<Input type='text' id='setTitle' name='setTitle'/>
+						{/* add tags option for sorting also allow for image selection amongst specific options or user opload */}
+					</form>
+				</Modal>
 			</div>
-		:<Card className={styles.flashCard} key={element.key} cover={<div><Image preview={false} className={styles.ig} width={200} height={200} src='/images/profile.jpg' alt='flashcard cover'/>
-			<div className={styles.igtext}>
-					<h4 style={{fontWeight:'900'}} >{element.id}</h4>
-					<p style={{fontStyle:'italic'}}>{element.data.length} card(s)</p>
-				</div>
-			</div>}>
-				<div style={{display:'flex', flexDirection:'row', justifyContent:'center'}}>
-					<a onClick={()=>{router.push({pathname:`/study/${element.id}`, query:{set:element.id}})}}><CaretRightOutlined/></a>
-				</div>
-				<FlashDrop set={element} 	user={user}></FlashDrop>
-			</Card>
-		))
+			{items.map(element => (
+				element.id =='div'?<></>:element.id =='desc'?<></>
+				:<Card className={styles.flashCard} key={element.key} cover={<div><Image preview={false} className={styles.ig} width={200} height={200} src='/images/profile.jpg' alt='flashcard cover'/>
+				<div className={styles.igtext}>
+						<h4 style={{fontWeight:'900'}} >{element.id}</h4>
+						<p style={{fontStyle:'italic'}}>{element.data.length} card(s)</p>
+					</div>
+				</div>}>
+					<div style={{display:'flex', flexDirection:'row', justifyContent:'center'}}>
+						<a onClick={()=>{router.push({pathname:`/study/${element.id}`, query:{set:element.id}})}}><CaretRightOutlined/></a>
+					</div>
+					<FlashDrop set={element} 	user={user}></FlashDrop>
+				</Card>
+			))}
+		</>
 	)
 }
 
@@ -206,10 +208,8 @@ export const KanjiList = ({info, uid, pageType}) => {
 
 	return (
 		<>
-		{/* <div style={{display:'flex', flexDirection:'row', overflowX:'scroll'}}> */}
 		<div>
-			{/* {pageType=='horz'?:console.log('hihi')} */}
-		<Drop kanji={''} icon={<Button>+ Add all to Set</Button>} dataaa={info}></Drop>
+		<Drop kanji={''} icon={info.length>0?<Button>+ Add all to Set</Button>:<></>} dataaa={info}></Drop>
 		{info.map(item=>(
 			<div key={item.key}>
 			<Card style={{width:'500px', margin:'20px 0px'}}>
@@ -277,3 +277,29 @@ export function CommonFoot() {
 		</Footer>
 	)
 }
+
+export function SpacedRepetition() {
+	var apiToken = '85f8ef5f-6a17-4440-a3d2-37188203be56';
+	var apiEndpointPath = 'spaced_repetition_systems/1';
+	var requestHeaders =
+		new Headers({
+			'Wanikani-Revision': '20170710',
+			Authorization: 'Bearer ' + apiToken,
+		});
+	var apiEndpoint =
+		new Request('https://api.wanikani.com/v2/' + apiEndpointPath, {
+			method: 'GET',
+			headers: requestHeaders
+		});
+
+	fetch(apiEndpoint)
+		.then(response => response.json())
+		.then(responseBody => console.log(responseBody));
+
+}
+//store time in seconds in db, add specified interval
+//re convert to time, when page loads, check that the
+//current time is the stored time, or past that time,
+//this determines if the kanji will appear in dashorad as ready to review
+//shuold flashcards be different from review?
+//what kind of interactive mode will be avalialbe? if not? 

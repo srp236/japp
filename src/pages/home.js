@@ -109,7 +109,8 @@ export default function Home() {
     const temp = await getSong(data.songName, data.artistName)
     let temp2;
     if(temp !== undefined){
-      router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:0}},`/songs/${data.songName}`)
+      router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:0}})
+      // router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:0}},`/songs/${data.songName}`)
     } else if ((temp2 = await getLyricRef(data.songName, data.artistName)) !== 1) {
       router.push({pathname:`/songs/${data.songName}`, query: {title:data.songName, artist:data.artistName, fstat:temp2}})
     } else {

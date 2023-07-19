@@ -192,7 +192,8 @@
 }
 
 .cardInt:hover {
-  background-color: rgba(230, 26, 57, 0.079);
+  background-color: rgba(197, 197, 197, 0.079);
+  color: purple;
 }
 
 .flashCard a {

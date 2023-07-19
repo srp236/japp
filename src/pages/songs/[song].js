@@ -79,46 +79,51 @@ export default function Song() {
   }
 
   async function getAnnotations() {
-    let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
-    const annotations = request.data()
-    if(annotations){
-      console.log(annotations)
-      const annonKeys = Object.keys(annotations)
-      const div = document.getElementById('lyrics').childNodes
-      let nodeList = Array.from(div)
-      
-      annonKeys.forEach(element => {
-        // console.log("starting node: ", div[annotations[element].tst.start].textContent)
-        const range = document.createRange()
-        // console.log(nodeList[annotations[element].tst.start])
-        //   let sindex, eindex
-        if(range){
-        range.setStart(nodeList[annotations[element].tst.start], annotations[element].tst.indexS)
-        range.setEnd(nodeList[annotations[element].tst.end], annotations[element].tst.indexE)
-        // range.setStart(div.item(annotations[element].tst.start), annotations[element].tst.indexS)
-        // range.setEnd(div.item(annotations[element].tst.end), annotations[element].tst.indexE)
-        // console.log(range)
-          if(range.toString().length != 0){
-            let a = document.createElement("a")
-            let span = document.createElement("span")
-            a.id = element
-            a.onclick = function () {
-              document.getElementById('annon').style.visibility = "visible";
-              document.getElementById('annon').style.top = `${window.scrollY + document.getElementById(this.id).getBoundingClientRect().top - 120}px`;
-              let lm = []
-              if(annotations[element].tags){
-                annotations[element].tags.forEach(element2 => {
-                  lm.push(<Tag closable onClose={()=>{updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')}}>{element2}</Tag>)
-                });
+    try {
+      let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+      const annotations = request.data()
+      if(annotations){
+        // console.log(annotations)
+        const annonKeys = Object.keys(annotations)
+        const div = document.getElementById('lyrics').childNodes
+        let nodeList = Array.from(div)
+        
+        annonKeys.forEach(element => {
+          // console.log("starting node: ", div[annotations[element].tst.start].textContent)
+          const range = document.createRange()
+          // console.log(nodeList[annotations[element].tst.start])
+          //   let sindex, eindex
+          if(range){
+          range.setStart(nodeList[annotations[element].tst.start], annotations[element].tst.indexS)
+          range.setEnd(nodeList[annotations[element].tst.end], annotations[element].tst.indexE)
+          // range.setStart(div.item(annotations[element].tst.start), annotations[element].tst.indexS)
+          // range.setEnd(div.item(annotations[element].tst.end), annotations[element].tst.indexE)
+          // console.log(range)
+            if(range.toString().length != 0){
+              let a = document.createElement("a")
+              let span = document.createElement("span")
+              a.id = element
+              a.onclick = function () {
+                document.getElementById('annon').style.visibility = "visible";
+                document.getElementById('annon').style.top = `${window.scrollY + document.getElementById(this.id).getBoundingClientRect().top - 120}px`;
+                let lm = []
+                if(annotations[element].tags){
+                  annotations[element].tags.forEach(element2 => {
+                    lm.push(<Tag closable onClose={()=>{updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')}}>{element2}</Tag>)
+                  });
+                }
+                setTxt([annotations[element].note, lm])
               }
-              setTxt([annotations[element].note, lm])
+              range.surroundContents(span)
+              range.surroundContents(a)
             }
-            range.surroundContents(span)
-            range.surroundContents(a)
           }
-        }
-        // console.log(nodeList)
-      })
+          // console.log(nodeList)
+        })
+      }
+    } catch (error) {
+      console.log('someting happen')
+      router.reload()
     }
   }
 
