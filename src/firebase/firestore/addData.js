@@ -37,8 +37,6 @@ export async function updateNoteArray(colllection, id, data1, data2, data3, type
     try {
       type == 'add'?result = await updateDoc(doc(db, colllection, id), {[data1]:arrayUnion(data2)}):
       result = await setDoc(doc(db, colllection, id), {[data1.data2]:arrayRemove(data3)},{merge: true})
-      // result = await setDoc(doc(db, colllection, id), {[data1]:{[data2]:arrayRemove(data3)}},{merge: true})
-      // result = await updateDoc(doc(db, colllection, id), {[data1]:{[data2]:arrayRemove(data3)}})
     } catch (e) {
         error = e;
         console.log(error)
