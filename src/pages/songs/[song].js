@@ -10,6 +10,7 @@ import { useAuth } from '@/src/utils/AuthUserContext';
 const { Header } = Layout;
 import { MenuOutlined, DeleteOutlined, FileAddOutlined, PlusOutlined } from '@ant-design/icons';
 import { updateDataIndex, updateNoteArray, addNote, updateMultiNotes, updateData} from '@/src/firebase/firestore/addData';
+import { delField } from '@/src/firebase/firestore/delField';
 
 const { TextArea } = Input;
 let hlp = {}, lyricH = '', selec = '', aR = '',tagList = [],annotationTags = []
@@ -85,22 +86,15 @@ export default function Song() {
       let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
       const annotations = request.data()
       if(annotations){
-        // console.log(annotations)
         const annonKeys = Object.keys(annotations)
         const div = document.getElementById('lyrics').childNodes
         let nodeList = Array.from(div)
         
         annonKeys.forEach(element => {
-          // console.log("starting node: ", div[annotations[element].tst.start].textContent)
           const range = document.createRange()
-          // console.log(nodeList[annotations[element].tst.start])
-          //   let sindex, eindex
           if(range){
           range.setStart(nodeList[annotations[element].tst.start], annotations[element].tst.indexS)
           range.setEnd(nodeList[annotations[element].tst.end], annotations[element].tst.indexE)
-          // range.setStart(div.item(annotations[element].tst.start), annotations[element].tst.indexS)
-          // range.setEnd(div.item(annotations[element].tst.end), annotations[element].tst.indexE)
-          // console.log(range)
             if(range.toString().length != 0){
               let a = document.createElement("a")
               let span = document.createElement("span")
@@ -120,7 +114,6 @@ export default function Song() {
               range.surroundContents(a)
             }
           }
-          // console.log(nodeList)
         })
       }
     } catch (error) {
@@ -186,28 +179,20 @@ export default function Song() {
     })
   }
   
-  const deleteAnnotation = (event) => {
-    event.preventDefault()
-    setsLoading(true)
-    //make db call to dele te from notes
+  const deleteAnnotation = async (event) => {
     document.getElementById('annon').style.visibility = "hidden"
-    getLyricsKanji().then(e=>{
-      setsLoading(false)
-    })
+    await delField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0])
+    router.reload()
   }
   
   const handleAnn = async (values) => {
     try {
       setTxt([aR, values.note])
       let data= {[aR]:{'id':aR, 'note' :values.note, 'tags':tagList, 'tst':hlp}}
-      // let data= {[aR]:{'id':aR, 'note' :values.note, 'pos':hlp, 'tags':tagList, 'tst':hlp}}
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
       document.getElementById('annon').style.visibility = "hidden"
-      // setsLoading(false)
       //////////////get existing values and do comparison//////////////////////////////////////////
-      // console.log(document.getElementById('lyrics').childNodes)
       let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
-      console.log('request: ', request)
       const annotations = request.data()
       const tempAnonList = [];
       if(annotations){
@@ -215,69 +200,10 @@ export default function Song() {
          tempAnonList.push([ann, annotations[ann].tst.start])
         }
         tempAnonList.sort((a,b)=> a[1] - b[1])
-
         let indexOfAnn = tempAnonList.findIndex(element => element.toString() == [`${aR}`,hlp.start])
         let changeInterval = 2
-
-        console.log(tempAnonList)
-        console.log([`${aR}`,hlp.start])
-        console.log(indexOfAnn)
         let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
         await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
-        // await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
-        // console.log("tempanonlist: ", tempAnonList)
-        // console.log("tempanonlist[0]: ",tempAnonList[0])
-        // console.log(tempAnonList.indexOf(tempAnonList[3]))
-        // console.log([`${aR}`,hlp.start])
-        // let yu = [`${aR}`,hlp.start]
-        // console.log(tempAnonList.indexOf(yu))
-
-        // console.log(tempAnonList.indexOf[hlp.id][hlp.tst.start])
-        // console.log("annotations" ,annotations)
-        // const annonKeys = Object.keys(annotations)
-        // // console.log("annotationskeys: ", annonKeys)
-        // // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
-        // let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null).filter(val => val != null)
-        // let tmpList = []
-        // const updateArr = []
-        // let minAnnon, minEnd, diff, currentDiff
-        // console.log("starlist", startList)
-        // if(startList.length != 0 || startList != undefined){
-        //   for (let index = 0; index < startList.length; index++) {
-        //     const element = startList[index];
-        //     console.log("element", element)
-        //     for (let index2 = 0; index < annonKeys.length; index2++) {
-        //       const element2 = annonKeys[index2];
-        //       console.log(annotations[element2]['tst']) 
-        //   //     if(element != null){
-        //         if(annotations[element2]['tst'].start == element){
-        //           tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
-        //           break
-        //         }
-        //   //     }
-        //     }
-        //   }
-        //   console.log('tmplist', tmpList)
-        //   tmpList.forEach(element => {
-        //     console.log(hlp)
-              // let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
-              // updateArr.push(tmp)
-        //     if(hlp.start == hlp.end){
-        //       console.log('is sanammama')
-        //       // let tdiff = element.end - element.start
-        //       let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
-        //       updateArr.push(tmp)
-        //     } else if(hlp.start != hlp.end){
-        //       console.log('not same')
-        //       let tdiff = hlp.end - hlp.start
-        //       let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff), 'endVal':(element.end-tdiff)}
-        //       console.log(tmp)
-        //       updateArr.push(tmp)
-        //     }
-        //   });
-        //   console.log('iparr', updateArr)
-        //   // await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
-        // }
       }
     } catch (error) {
       console.log(error)
@@ -351,7 +277,7 @@ export default function Song() {
                 {txt?
                 <Card id='annon' className={styles.annon}>
                   <Button type='text' style={{}} onClick={()=>{setTxt(undefined)}}>Edit</Button>
-                  <Button type='text' style={{color:'red'}} onClick={()=>{}}>Delete</Button>
+                  <Button type='text' style={{color:'red'}} onClick={()=>{deleteAnnotation()}}>Delete</Button>
                   <hr></hr>
                   <p style={{width:'90%', height:'100px'}}>{typeof(txt)=='string'?txt:txt[1]}</p>
                   {/* <div><Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag></div> */}
