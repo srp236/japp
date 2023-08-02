@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { Spin, Button, Result, Skeleton, Layout } from 'antd';
+import { Spin, Button, Result, Skeleton, Layout, Progress } from 'antd';
 import { CommonFoot } from '../utils/methods'
 import Image from 'next/image'
 import styles from '@/src/styles/Home.module.css'
@@ -12,7 +12,7 @@ const { Header, Footer, Content } = Layout;
 export default function Results () {
   const [sloading, setsLoading] = useState(true);
   const router = useRouter()
-  const {query: {kstatus, ts}} = router 
+  const {query: {totalW, totalC}} = router 
 
 
   useEffect(()=>{
@@ -36,16 +36,26 @@ export default function Results () {
     <div style={{height:'200px'}}></div>
     <center style={{flex:'1 0', display:'flex', flexDirection:'column'}}>
       <Skeleton loading={sloading} active>
+        {console.log((totalC/(totalC+totalW))*100)}
+        {console.log(totalC)}
+        {console.log(totalW)}
+        {console.log((Number(totalC)/(Number(totalW)+Number(totalC))*100))}
       <Result
         status="success"
         title="Study Complete!"
-        subTitle="You have completed this flashcard set. Go to the dashboard to see your progress."
+        // subTitle="You have completed this flashcard set. Go to the dashboard to see your progress."
+        subTitle={<>
+          <p>Wrong:{totalW}</p>
+          <p>Correct:{totalC}</p>
+        </>}
         extra={[
           //<Button type="primary" onClick={()=>{SpacedRepetition()}}>Go Home</Button>,
           <Button type="primary" onClick={()=>{router.push('/home')}}>Go Home</Button>,
           <Button onClick={()=>{router.back()}}>Study Again</Button>,
         ]}
       />
+      {/* <div style={{width:'50%'}}><Progress percent={(Number(totalC)/(Number(totalW)+Number(totalC))*100)}></Progress></div> */}
+      
       </Skeleton>
     </center>
     <div style={{height:'200px'}}></div>

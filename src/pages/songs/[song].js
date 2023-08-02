@@ -9,7 +9,7 @@ import { KanjiList, CommonFoot, flashCardDoc } from '@/src/utils/methods';
 import { useAuth } from '@/src/utils/AuthUserContext';
 const { Header } = Layout;
 import { MenuOutlined, DeleteOutlined, FileAddOutlined, PlusOutlined } from '@ant-design/icons';
-import { updateDataArray, updateNoteArray, addNote, updateMultiNotes} from '@/src/firebase/firestore/addData';
+import { updateDataIndex, updateNoteArray, addNote, updateMultiNotes, updateData} from '@/src/firebase/firestore/addData';
 
 const { TextArea } = Input;
 let hlp = {}, lyricH = '', selec = '', aR = '',tagList = [],annotationTags = []
@@ -19,7 +19,9 @@ export default function Song() {
   const [sloading, setsLoading] = useState(true);
   const [info, setInfo] = useState([]);
   const [txt, setTxt] = useState(undefined);
+  const [inputValue, setInputValue] = useState('')
   const [nodel, setNodel] = useState();
+  const annTagList = [];
   // const [annotationTags, setannotationTags] = useState(undefined) ;
   const { authUser, loading } = useAuth();
   let name ='', uid ='', hi = undefined, tpo
@@ -112,7 +114,7 @@ export default function Song() {
                     lm.push(<Tag closable onClose={()=>{updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')}}>{element2}</Tag>)
                   });
                 }
-                setTxt([annotations[element].note, lm])
+                setTxt([element, annotations[element].note, lm])
               }
               range.surroundContents(span)
               range.surroundContents(a)
@@ -196,7 +198,7 @@ export default function Song() {
   
   const handleAnn = async (values) => {
     try {
-      setTxt(values.note)
+      setTxt([aR, values.note])
       let data= {[aR]:{'id':aR, 'note' :values.note, 'tags':tagList, 'tst':hlp}}
       // let data= {[aR]:{'id':aR, 'note' :values.note, 'pos':hlp, 'tags':tagList, 'tst':hlp}}
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
@@ -204,61 +206,85 @@ export default function Song() {
       // setsLoading(false)
       //////////////get existing values and do comparison//////////////////////////////////////////
       // console.log(document.getElementById('lyrics').childNodes)
-      // let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
-      // console.log('request: ', request)
-      // const annotations = request.data()
-      // if(annotations){
-      //   console.log("annotations" ,annotations)
-      //   const annonKeys = Object.keys(annotations)
-      //   console.log("annotationskeys: ", annonKeys)
-      //   // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
-      //   let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null).filter(val => val != null)
-      //   let tmpList = []
-      //   const updateArr = []
-      //   // let minAnnon, minEnd, diff, currentDiff
-      //   console.log("starlist", startList)
-      //   if(startList.length != 0 || startList != undefined){
-      //     for (let index = 0; index < startList.length; index++) {
-      //       const element = startList[index];
-      //       console.log("element", element)
-      //       for (let index2 = 0; index < annonKeys.length; index2++) {
-      //         const element2 = annonKeys[index2];
-      //         console.log(annotations[element2]['tst']) 
-      //     //     if(element != null){
-      //           if(annotations[element2]['tst'].start == element){
-      //             tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
-      //             break
-      //           }
-      //     //     }
-      //       }
-      //     }
-      //     console.log('tmplist', tmpList)
-      //     tmpList.forEach(element => {
-      //       console.log(hlp)
-      //         // let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
-      //         // updateArr.push(tmp)
-      //       if(hlp.start == hlp.end){
-      //         console.log('is sanammama')
-      //         // let tdiff = element.end - element.start
-      //         let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
-      //         updateArr.push(tmp)
-      //       } else if(hlp.start != hlp.end){
-      //         console.log('not same')
-      //         let tdiff = hlp.end - hlp.start
-      //         let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff), 'endVal':(element.end-tdiff)}
-      //         console.log(tmp)
-      //         updateArr.push(tmp)
-      //       }
-      //     });
-      //     console.log('iparr', updateArr)
-      //     await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
-      //   }
-      // }
+      let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+      console.log('request: ', request)
+      const annotations = request.data()
+      const tempAnonList = [];
+      if(annotations){
+        for (var ann in annotations) {
+         tempAnonList.push([ann, annotations[ann].tst.start])
+        }
+        tempAnonList.sort((a,b)=> a[1] - b[1])
+
+        let indexOfAnn = tempAnonList.findIndex(element => element.toString() == [`${aR}`,hlp.start])
+        let changeInterval = 2
+
+        console.log(tempAnonList)
+        console.log([`${aR}`,hlp.start])
+        console.log(indexOfAnn)
+        let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
+        await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
+        // await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
+        // console.log("tempanonlist: ", tempAnonList)
+        // console.log("tempanonlist[0]: ",tempAnonList[0])
+        // console.log(tempAnonList.indexOf(tempAnonList[3]))
+        // console.log([`${aR}`,hlp.start])
+        // let yu = [`${aR}`,hlp.start]
+        // console.log(tempAnonList.indexOf(yu))
+
+        // console.log(tempAnonList.indexOf[hlp.id][hlp.tst.start])
+        // console.log("annotations" ,annotations)
+        // const annonKeys = Object.keys(annotations)
+        // // console.log("annotationskeys: ", annonKeys)
+        // // let startList = Array.from(annonKeys, element=>annotations[element].tst.start)
+        // let startList = Array.from(annonKeys, element=>hlp.start<annotations[element].tst.start?annotations[element].tst.start:null).filter(val => val != null)
+        // let tmpList = []
+        // const updateArr = []
+        // let minAnnon, minEnd, diff, currentDiff
+        // console.log("starlist", startList)
+        // if(startList.length != 0 || startList != undefined){
+        //   for (let index = 0; index < startList.length; index++) {
+        //     const element = startList[index];
+        //     console.log("element", element)
+        //     for (let index2 = 0; index < annonKeys.length; index2++) {
+        //       const element2 = annonKeys[index2];
+        //       console.log(annotations[element2]['tst']) 
+        //   //     if(element != null){
+        //         if(annotations[element2]['tst'].start == element){
+        //           tmpList.push({'id':element2, 'start':annotations[element2].tst.start, 'end':annotations[element2].tst.end})
+        //           break
+        //         }
+        //   //     }
+        //     }
+        //   }
+        //   console.log('tmplist', tmpList)
+        //   tmpList.forEach(element => {
+        //     console.log(hlp)
+              // let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
+              // updateArr.push(tmp)
+        //     if(hlp.start == hlp.end){
+        //       console.log('is sanammama')
+        //       // let tdiff = element.end - element.start
+        //       let tmp = {'id':element, 'strt':'start','end':'end','strtVal':element.start, 'endVal':element.end}
+        //       updateArr.push(tmp)
+        //     } else if(hlp.start != hlp.end){
+        //       console.log('not same')
+        //       let tdiff = hlp.end - hlp.start
+        //       let tmp = {'id':element, 'strt':'start','end':'end','strtVal':(element.start-tdiff), 'endVal':(element.end-tdiff)}
+        //       console.log(tmp)
+        //       updateArr.push(tmp)
+        //     }
+        //   });
+        //   console.log('iparr', updateArr)
+        //   // await updateMultiNotes(`users/${uid}/notes/`,`${title} by ${artist}`,'tst',updateArr)
+        // }
+      }
     } catch (error) {
       console.log(error)
       alert("error occured, please try again")
     }
   }
+
   useEffect(()=>{
     setsLoading(true)
     if(!loading && !authUser){
@@ -324,16 +350,40 @@ export default function Song() {
               <div style={{width:'50%'}}>
                 {txt?
                 <Card id='annon' className={styles.annon}>
-                  <button onClick={()=>{setTxt(undefined)}}>edit</button>
-                  <button onClick={()=>{}}>delete</button>
-                  <p>{txt[0]}</p>
-                  <div>{txt[1]} <Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag></div>
+                  <Button type='text' style={{}} onClick={()=>{setTxt(undefined)}}>Edit</Button>
+                  <Button type='text' style={{color:'red'}} onClick={()=>{}}>Delete</Button>
+                  <hr></hr>
+                  <p style={{width:'90%', height:'100px'}}>{typeof(txt)=='string'?txt:txt[1]}</p>
+                  {/* <div><Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag></div> */}
+                  <div>
+                    {typeof(txt)=='string'?'':txt[2]}
+                    {/* <Input type='text' size='small' style={{width:'78px'}} */}
+                    <Input id='tagInput' type='text' size='small' style={{width:'78px', display:'none'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
+                      onPressEnter={()=>{
+                        document.getElementById('annTag').style.display = 'block'
+                        document.getElementById('tagInput').style.display = 'none'
+                        // (item.tags).push(inputValue),
+                        // setCurrent('')
+                        // setInputValue(''),
+                        console.log(txt[0])
+                        // updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')
+                        updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',inputValue,'add')
+                      }}
+                    />
+                    <Tag id='annTag' onClick={(target)=>{
+                      console.log(target)
+                      // document.getElementById('annTag').style.display = 'none'
+                      // document.getElementById('tagInput').style.display = 'block'
+                      // console.log(txt)
+                    }} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>
+                  </div>
                 </Card>:<Card id='annon' className={styles.annon}>
                   <Form name='createAnn' onFinish={handleAnn}>
+                    <p>Enter notes and save to create annotation</p>
                     <Form.Item id='note' name='note' rules={[{min:0, message:'please add note'}]}><TextArea autoSize={{minRows: 3}} style={{}}></TextArea></Form.Item>
-                    <div styles={{display:'flex', flexDirection:'row'}}>
-                      <Form.Item><Button style={{margin:'0px 0px'}} type='primary' htmlType="submit">Save</Button></Form.Item>
-                      <Form.Item><Button style={{margin:'0px 0px'}} type='primary' onClick={cancelAnnotation}>Cancel</Button></Form.Item>
+                    <div style={{display:'flex', flexDirection:'row'}}>
+                      <Form.Item><Button style={{margin:'0px 0px', marginRight:'20px', backgroundColor:'rgb(230,26,57)'}} type='primary' htmlType="submit">Save</Button></Form.Item>
+                      <Form.Item><Button style={{margin:'0px 0px'}} type='text' onClick={cancelAnnotation}>Cancel</Button></Form.Item>
                     </div>
                   </Form>
                   {/* <form name='createAnn' onSubmit={handleAnn}>
@@ -348,7 +398,7 @@ export default function Song() {
             </div>
           </Card> 
           <Button id='tltp' onClick={createAnnotation} className={styles.tltp}>
-            Create Annotation
+            <p style={{padding:'0px 10px'}}>Create Annotation</p>
           </Button>
         </div>
       <CommonFoot/>

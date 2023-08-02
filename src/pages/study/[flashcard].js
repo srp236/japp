@@ -18,6 +18,8 @@ export default function FlashCardSet() {
   let list
   const colorList = ['c825fa','25fa65','25fa65','257afa','fa7325','fafa25','f07175','68deda','ff0000','91ff00']
   const kanjiStatus = {}
+  var wrong = 0
+  var correct = 0
 
   const getKanji = async(setName) => {
     setName?[list = await getDocuQuery('kanji', 'flashcardRef', '==', setName),setKanji(list), setsLoading(false)]:console.log('wait')
@@ -25,11 +27,12 @@ export default function FlashCardSet() {
 
   const Hmm = () => {
     document.getElementById('cntr').style.visibility = "hidden"
-    // document.getElementById('cntr').style.display = 'none'
+    //document.getElementById('cntr').style.display = 'none'
     setsLoading(true);
     setTimeout(() => {
       console.log(kanjiStatus)
-      router.push({pathname:'/studyResult', query:{'kstatus':kanjiStatus, 'ts':'this is a tst'}})
+      router.push({pathname:'/studyResult', query:{'totalW':wrong, 'totalC':correct}})
+      //router.push({pathname:'/studyResult', query:{'kstatus':kanjiStatus, 'totalW':wrong, 'totalC':correct}})
     }, 1000);
   }
 
@@ -54,9 +57,10 @@ export default function FlashCardSet() {
               </div>
               <div className={styles.cback}>
                 <Card className={styles.cardB}>
-                  <p>(1) {(element.meaning).join(', ')}</p>
-                  <p>kun-yomi: {(element.kunyomi).join('、')}</p>
+                  <p>Kun-yomi: {(element.kunyomi).join('、')}</p>
                   <p>On Yomi: {(element.onyomi).join('、')}</p>
+                  <hr></hr>
+                  <p>Meaning(s): {(element.meaning).join(', ')}</p>
                 </Card>
               </div>
             </div>
@@ -73,6 +77,7 @@ export default function FlashCardSet() {
             document.getElementById('Cardset').removeChild(tst)
             setncount(document.getElementById('Cardset').childElementCount)
           // }, 400)
+          correct++
         }}><CheckOutlined/></Button>
         <Button className={[styles.bttnSpace, styles.bttn]} onClick={()=>{
           document.getElementById('cinner').style.transform = 'rotateY(0deg)'
@@ -80,8 +85,9 @@ export default function FlashCardSet() {
           // flashStatus.push({[tst.textContent[0]]:-1})
           // console.log(flashStatus)
           document.getElementById('Cardset').append(tst)
-          kanjiStatus[tst.textContent[0]] = (kanjiStatus[tst.textContent[0]]>=1? kanjiStatus[tst.textContent[0]] +=1 : 1)
-          console.log("curr restlss: ",kanjiStatus)
+          wrong++
+          // kanjiStatus[tst.textContent[0]] = (kanjiStatus[tst.textContent[0]]>=1? kanjiStatus[tst.textContent[0]] +=1 : 1)
+          // console.log("curr restlss: ",kanjiStatus)
         }}><CloseOutlined/></Button></>
         :Hmm()}
       </>

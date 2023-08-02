@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import styles from '@/src/styles/Home.module.css'
 import React, { useEffect, useState } from 'react'
-import { Layout, Spin, notification, Card, Button, AutoComplete, Input, Form, Row, Column } from 'antd';
+import { Layout, Spin, notification, Card, Button, AutoComplete, Input, Form, Row, Column, Tooltip } from 'antd';
 import { getData, getAllDocID, getDocuQuery, getAllDocs } from '@/src/firebase/firestore/getData'
 import { isKanji, getKanjiInfo, KanjiList, flashCardDoc, FlashSets, CommonFoot } from '../utils/methods'
 import { useAuth } from '../utils/AuthUserContext'
@@ -210,7 +210,7 @@ export default function Home() {
                 </Form>
               </Card>
               <Card className={styles.card}>
-                <h1>Kanji Extractor 3000 <InfoCircleOutlined size={10} /></h1>
+                <h1>Kanji Extractor 3000 <Tooltip title='enter any block of text to get the kanji extracted from it'><InfoCircleOutlined size={10} /></Tooltip> </h1>
                 <Form className={styles.songForm} name='extractForm' onFinish={extractK}>
                   <Form.Item id='kanjiblock' name='kanjiblock' rules={[{min:0, message:'enter kanji to extract'}]}><TextArea autoSize={{minRows: 3}} placeholder='Enter text to have the kanji extracted...' style={{width:'40%'}}></TextArea></Form.Item>
                   <Form.Item><Button type='primary' htmlType="submit" style={{backgroundColor:'rgb(230,26,57)'}}>Extract</Button></Form.Item>
@@ -223,7 +223,7 @@ export default function Home() {
             <Card className={styles.card} style={{width:'40%'}}></Card>
           </div>
           <Card className={styles.card}>
-            <h1>Flashcard Study Sets</h1>
+            <h1>Flashcard Study Sets <Tooltip title={'view all created sets holding kanji cards'} ><InfoCircleOutlined size={1} /></Tooltip> </h1>
             <div className={styles.homeCard}>
               <FlashSets user={uid} />
             </div>

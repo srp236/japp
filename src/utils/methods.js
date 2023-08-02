@@ -25,7 +25,6 @@ export const flashCardDoc = async (uid) => {
 					}
 				});
 				let i=list1.length
-				console.log('tjs s:', i)
 				list1.push({label:element, id:element, key:i, data:temp})
 				temp = []
 			});

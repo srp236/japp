@@ -23,19 +23,39 @@ export async function addNote(colllection, id, colll2, id2, data){
 
 export async function updateData(colllection, id, ref, data){
   try {
-    await updateDoc(doc(db, colllection, id), {[ref]:data})
+    await updateDoc(doc(db, colllection, id), {[ref]:data},{merge:true})
   } catch (error) {
     console.log('there was an error :(')
     console.log(error)
   }
 }
 
+export async function updateDataIndex(colllection, id, ref, data){
+  try {
+    await setDoc(doc(db, colllection, id), {[ref]:data},{merge:true})
+  } catch (error) {
+    console.log('there was an error :(')
+    console.log(error)
+  }
+}
+
+// export async function updateDataIndex(colllection, id, ref, data){
+//   try {
+//     // await updateDoc(doc(db, colllection, id), {[ref]:data},{merge:true})
+//     await updateDoc(doc(db, colllection, id), {[ref]: {[data]: {[element.strt]:element.strtVal, [element.end]:element.endVal}}},{merge:true})
+//   } catch (error) {
+//     console.log('there was an error :(')
+//     console.log(error)
+//   }
+// }
+
 export async function updateNoteArray(colllection, id, data1, data2, data3, type) {
     let result = null;
     let error = null;
     console.log(id)
     try {
-      type == 'add'?result = await updateDoc(doc(db, colllection, id), {[data1]:arrayUnion(data2)}):
+      type == 'add'?result = await setDoc(doc(db, colllection, id), {[data1.data2]:arrayUnion(data3)},{merge: true}):
+      // type == 'add'?result = await setDoc(doc(db, colllection, id), {[data1.data2]:arrayUnion(data3)},{merge: true}):
       result = await setDoc(doc(db, colllection, id), {[data1.data2]:arrayRemove(data3)},{merge: true})
     } catch (e) {
         error = e;
@@ -67,13 +87,15 @@ export async function updateMultiDocs(colllection, list, field, data){
   await batch.commit();
 }
 
-export async function updateMultiNotes(colllection,id,data, list){
+export async function updateMultiNotes(colllection, id, data, list){
   const batch = writeBatch(db);
+  
   list.forEach(element => {
     const ref = doc(db, colllection, id);
     batch.set(ref, {[element.id.id]: {[data]: {[element.strt]:element.strtVal, [element.end]:element.endVal}}},{merge:true})
     // batch.update(ref, {[element.id.id]: {[data]: {[element.end]:element.endVal}}})
-  });
+  })
+
   await batch.commit();
 }
 
