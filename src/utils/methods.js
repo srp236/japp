@@ -245,6 +245,12 @@ export const KanjiList = ({info, uid, pageType}) => {
 							setInputValue(''),
 							updateDataArray('kanji',item.kanji,'tags',inputValue, 'add')
 						}}
+						onBlur={()=>{
+							(item.tags).push(inputValue),
+							setCurrent('')
+							setInputValue(''),
+							updateDataArray('kanji',item.kanji,'tags',inputValue, 'add')
+						}}
 						/>:<Tag id='mt' onClick={()=>{setCurrent(item.kanji)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>
 						}
 						</p>
