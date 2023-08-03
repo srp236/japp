@@ -1,5 +1,5 @@
 import { getNotes, getData, getDocuQuery } from '@/src/firebase/firestore/getData'
-import { Layout, Spin, Card, Drawer, Tag, Form, Input, Button } from 'antd';
+import { Layout, Spin, Card, Tag, Form, Input, Button } from 'antd';
 import React, { useState, useEffect } from 'react'
 import styles from '@/src/styles/Home.module.css'
 import { useRouter } from "next/router"
@@ -8,8 +8,8 @@ import Head from 'next/head';
 import { KanjiList, CommonFoot, flashCardDoc } from '@/src/utils/methods';
 import { useAuth } from '@/src/utils/AuthUserContext';
 const { Header } = Layout;
-import { MenuOutlined, DeleteOutlined, FileAddOutlined, PlusOutlined } from '@ant-design/icons';
-import { updateDataIndex, updateNoteArray, addNote, updateMultiNotes, updateData} from '@/src/firebase/firestore/addData';
+import { PlusOutlined } from '@ant-design/icons';
+import { updateDataIndex, addNote, updateDataField} from '@/src/firebase/firestore/addData';
 import { delField } from '@/src/firebase/firestore/delField';
 
 const { TextArea } = Input;
@@ -23,10 +23,7 @@ export default function Song() {
   const [inputValue, setInputValue] = useState('')
   const [clcked, setClcked] = useState(false);
   const [anntagss, setAnntagss] = useState({});
-  // const [nodel, setNodel] = useState();
-  // const annTagList = [];
   
-  // const [annotationTags, setannotationTags] = useState(undefined) ;
   const { authUser, loading } = useAuth();
   let name ='', uid =''
   let annotationTags = {}
@@ -273,7 +270,6 @@ export default function Song() {
             <KanjiList info={info} uid={uid} pageType=''/>
           </Card>
           <Card style={{width:'60%'}}>
-          {/* <Card> */}
             <h1 id='til'>{title}</h1> 
             <h4>{artist}</h4>
             <div style={{display:"flex", flexDirection:"row"}}>
@@ -288,28 +284,22 @@ export default function Song() {
                   <Button type='text' style={{color:'red'}} onClick={()=>{deleteAnnotation()}}>Delete</Button>
                   <hr></hr>
                   <p style={{width:'90%', height:'100px'}}>{typeof(txt)=='string'?txt:txt[1]}</p>
-                  {/* <div><Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag></div> */}
                   <div>
-                    {/* {typeof(txt)=='string'?'':txt[2]} */}
                     {typeof(txt)=='string'?'':anntagss[txt[0]].map((tag)=>{
                       return (
                         <span key={tag}style={{display: 'inline-block'}}>
-                          <Tag closable>{tag}</Tag>
+                          <Tag closable onClose={()=>{updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',tag,'remove')}} >{tag}</Tag>
                         </span>
                       )
                     })}
-                    {/* <Input type='text' size='small' style={{width:'78px'}} */}
                     {clcked?
                     <Input id='tagInput' type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
                       onPressEnter={()=>{
                         anntagss[txt[0]].push(inputValue)
                         console.log(anntagss[txt[0]])
+                        updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',inputValue,'add')
                         setInputValue('')
                         setClcked(false)
-                        // document.getElementById('annTag').style.display = 'block'
-                        // document.getElementById('tagInput').style.display = 'none'
-                        // updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')
-                        // updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',inputValue,'add')
                       }}
                       onBlur={()=>{
                         anntagss[txt[0]].push(inputValue)
@@ -329,12 +319,6 @@ export default function Song() {
                       <Form.Item><Button style={{margin:'0px 0px'}} type='text' onClick={cancelAnnotation}>Cancel</Button></Form.Item>
                     </div>
                   </Form>
-                  {/* <form name='createAnn' onSubmit={handleAnn}>
-                    <textarea id='note' name='note' style={{width:"100%", resize:"vertical"}} ></textarea>
-                    <button type='submit'>Save</button>
-                    <button onClick={cancelAnnotation}>Cancel</button>
-                  </form> */}
-                  {/* <Tag onClick={()=>{}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag> */}
                 </Card>
                 }
               </div>

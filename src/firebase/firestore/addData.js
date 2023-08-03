@@ -78,6 +78,20 @@ export async function updateDataArray(colllection, id, data1, data2, type) {
     return { result, error };
 }
 
+export async function updateDataField(colllection, id, ref, data1, data2, type) {
+  let result = null;
+  let error = null;
+  console.log(id)
+  try {
+    type == 'add'?result = await setDoc(doc(db, colllection, id), {[ref]:{[data1]:arrayUnion(data2)}},{merge:true}):
+    result = await setDoc(doc(db, colllection, id), {[ref]:{[data1]:arrayRemove(data2)}},{merge:true})
+  } catch (e) {
+      error = e;
+      console.log(error)
+  }
+  return { result, error };
+}
+
 export async function updateMultiDocs(colllection, list, field, data){
   const batch = writeBatch(db);
   list.forEach(element => {
