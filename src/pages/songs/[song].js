@@ -324,7 +324,8 @@ export default function Song() {
                     />:
                     <Tag id='annTag' onClick={()=>{setClcked(true)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>}
                   </div>
-                </Card>:<Card id='annon' className={styles.annon}>
+                </Card>
+                :<Card id='annon' className={styles.annon}>
                   <Form name='createAnn' onFinish={handleAnn}>
                     <p>Enter notes and save to create annotation</p>
                     <Form.Item id='note' name='note' rules={[{min:0, message:'please add note'}]}><TextArea autoSize={{minRows: 3}} style={{}}></TextArea></Form.Item>
@@ -349,92 +350,3 @@ export default function Song() {
   );
 }
 
- // for (let index = 0; index < annonKeys.length; index++) {
-    //   const element = annonKeys[index];
-    //   startList.push(annotations[element].tst.start)
-    //   // console.log(annotations[element].tst.start)
-    //   // let str = annotations[element].tst.start
-    //   // let en = annotations[element].tst.end
-    //   // if(str < annotations[annonKeys[index+1]].tst.start){
-    //   //   console.log('yes')
-    //   //   console.log(annotations[element].tst.start)
-    //   //   break
-    //   // }
-    // }
-    // console.log(startList)
-    // console.log(Math.min.apply(Math,startList))
-
-    // for (let index = 0; index < nodeList.length; index++) {
-      //   const element2 = nodeList[index];
-          // if(element2.textContent == annotations[element].pos.txt)
-          // {
-          //   console.log('fonudit')
-          //   if (index >= annotations[element].pos.start){
-          //     sindex = index
-          //     break
-          //   }
-          // }
-          // if(element2.textContent == annotations[element].tst.txt)
-          // {
-            // console.log('fonudit')
-            // if (index >= annotations[element].pos.start){
-            //   eindex = index
-            //   break
-            // }
-        //   }
-        // }
-                
-        // hlp.start == hlp.end?currentDiff = hlp.start: currentDiff = hlp.end - hlp.start
-        // let minStart = Math.min.apply(Math, startList)
-        // for (let index = 0; index < annonKeys.length; index++) {
-        //   const element = annonKeys[index];
-        //   if(annotations[element].tst.start == minStart){
-        //     minAnnon = element
-        //     minEnd = annotations[element].tst.end
-        //     break
-        //   } 
-        // }
-
-        // if(hlp.start < minstart){
-        //   currentDiff = hlp.end - hlp.start
-
-        //   for (let index = 0; index < annonKeys.length; index++) {
-        //     const element = annonKeys[index];
-        //     const vari = annotations[element].tst
-        //     let tmp = {'id':element, 'strt':'start','end':'end','strtVal':vari.start-currentDiff, 'endVal':vari.end-currentDiff}
-        //     updateArr.push(tmp)
-        //   }
-
-          //updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')
-
-        // }
-
-        // if(minStart == minEnd){
-        // } else {
-        //   diff = minEnd-minStart
-        // }
-        // console.log(diff)
-
-
-              // let startList = Array.from(annonKeys, element=>hl<annotations[element].tst.start?annotations[element].tst.start:null)
-      // let startList = Array.from(annonKeys, element=> {if(hl<annotations[element].tst.start){return annotations[element].tst.start}})
-      // let startList = Array.from(annonKeys, element=>{if(hl<annotations[element].tst.start){annotations[element].tst.start}})
-      // console.log(startList)
-      // let minStart = Math.min.apply(Math, startList)
-      // let minAnnon, minEnd, diff
-
-      // for (let index = 0; index < annonKeys.length; index++) {
-      //   const element = annonKeys[index];
-      //   annotations[element].tst.start
-      //   if(annotations[element].tst.start == minStart){
-      //     minAnnon = element
-      //     minEnd = annotations[element].tst.end
-      //     break
-      //   } 
-      // }
-
-      // if(minStart == minEnd){
-      // } else {
-      //   diff = minEnd-minStart
-      // }
-      // console.log(diff)
