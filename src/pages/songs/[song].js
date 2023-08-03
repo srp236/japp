@@ -209,6 +209,7 @@ export default function Song() {
         let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
         await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
       }
+      console.log(txt)
     } catch (error) {
       console.log(error)
       alert("error occured, please try again")
@@ -291,7 +292,7 @@ export default function Song() {
                   <hr></hr>
                   <p style={{width:'90%', height:'100px'}}>{typeof(txt)=='string'?txt:txt[1]}</p>
                   <div>
-                    {typeof(txt)=='string' || anntagss[txt[0]] == ''?'':anntagss[txt[0]].map((tag)=>{
+                    {typeof(txt)=='string' || anntagss[txt[0]] == '' || anntagss[txt[0]] == undefined ?'':anntagss[txt[0]].map((tag)=>{
                       return (
                         <span key={tag}style={{display: 'inline-block'}}>
                           <Tag closable onClose={()=>{updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',tag,'remove')}} >{tag}</Tag>
