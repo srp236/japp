@@ -1,6 +1,6 @@
 import { getNotes, getData, getDocuQuery } from '@/src/firebase/firestore/getData'
 import { Layout, Spin, Card, Tag, Form, Input, Button } from 'antd';
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use, useRef } from 'react'
 import styles from '@/src/styles/Home.module.css'
 import { useRouter } from "next/router"
 import Image from 'next/image'
@@ -23,6 +23,7 @@ export default function Song() {
   const [inputValue, setInputValue] = useState('')
   const [clcked, setClcked] = useState(false);
   const [anntagss, setAnntagss] = useState({});
+  const tagRef = useRef(null)
   
   const { authUser, loading } = useAuth();
   let name ='', uid =''
@@ -250,6 +251,11 @@ export default function Song() {
   //   }
   // },[])
 
+  useEffect(()=>{
+    if(clcked){
+      tagRef.current?.focus()
+    }
+  },[clcked])
   
 
   return (
@@ -285,7 +291,7 @@ export default function Song() {
                   <hr></hr>
                   <p style={{width:'90%', height:'100px'}}>{typeof(txt)=='string'?txt:txt[1]}</p>
                   <div>
-                    {typeof(txt)=='string'?'':anntagss[txt[0]].map((tag)=>{
+                    {typeof(txt)=='string' || anntagss[txt[0]] != ''?'':anntagss[txt[0]].map((tag)=>{
                       return (
                         <span key={tag}style={{display: 'inline-block'}}>
                           <Tag closable onClose={()=>{updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',tag,'remove')}} >{tag}</Tag>
@@ -293,19 +299,27 @@ export default function Song() {
                       )
                     })}
                     {clcked?
-                    <Input id='tagInput' type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
+                    <Input ref={tagRef} id='tagInput' type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
                       onPressEnter={()=>{
-                        anntagss[txt[0]].push(inputValue)
-                        console.log(anntagss[txt[0]])
-                        updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',inputValue,'add')
-                        setInputValue('')
-                        setClcked(false)
+                        if(inputValue.length > 0){
+                          anntagss[txt[0]].push(inputValue)
+                          console.log(anntagss[txt[0]])
+                          updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',inputValue,'add')
+                          setInputValue('')
+                          setClcked(false)
+                        } else {
+                          setClcked(false)
+                        }
                       }}
                       onBlur={()=>{
-                        anntagss[txt[0]].push(inputValue)
-                        console.log(anntagss[txt[0]])
-                        setInputValue('')
-                        setClcked(false)
+                        if(inputValue.length > 0){
+                          anntagss[txt[0]].push(inputValue)
+                          console.log(anntagss[txt[0]])
+                          setInputValue('')
+                          setClcked(false)
+                        } else {
+
+                        }
                       }}
                     />:
                     <Tag id='annTag' onClick={()=>{setClcked(true)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>}
