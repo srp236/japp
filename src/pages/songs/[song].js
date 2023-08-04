@@ -56,18 +56,12 @@ export default function Song() {
   const getLyricsKanji = async () => {
     if(fstat == 0) {
       const request = await getData('lyrics', artist)
-      // console.log('fire call lyrics: ', request)
       const response = request.data()[title]
       document.getElementById('lyrics').innerText = response.lyrics
       lyricH = document.getElementById('lyrics').offsetHeight + 200
       const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
-      // console.log('fire call kanji: ', request2)
       setInfo(request2)
       setsLoading(false)
-      // if(document){
-      //   setNodel(document.getElementById('lyrics').childNodes)
-      //   console.log(nodel)
-      // }
       getAnnotations()
     } else {
       const res = await scrapeData(fstat, title, artist)
@@ -85,7 +79,6 @@ export default function Song() {
 
   async function getAnnotations() {
     try {
-      console.log('called each time?')
       let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
       const annotations = request.data()
       if(annotations){
@@ -103,14 +96,8 @@ export default function Song() {
               let span = document.createElement("span")
               a.id = element
               a.onclick = function () {
-                // console.log(annotationTags)
                 document.getElementById('annon').style.visibility = "visible";
                 document.getElementById('annon').style.top = `${window.scrollY + document.getElementById(this.id).getBoundingClientRect().top - 120}px`;
-                // if(annotations[element].tags){
-                //   annotations[element].tags.forEach(element2 => {
-                //     lm.push(<Tag closable onClose={()=>{updateNoteArray(`users/${uid}/notes/`,`${title} by ${artist}`,`${element}`,'tags', element2,'')}}>{element2}</Tag>)
-                //   });
-                // }
                 setTxt([element, annotations[element].note])
               }
               //outside of onclick for annotation
@@ -119,8 +106,6 @@ export default function Song() {
                 tp.push(element2)
               });
               anntagss[element] = tp
-              // annotationTags[element] = tp
-              console.log(annotationTags)
               range.surroundContents(span)
               range.surroundContents(a)
             }
@@ -134,7 +119,6 @@ export default function Song() {
   }
 
   function getText() {
-    // console.log(document.getElementById('lyrics').childNodes)
     if(window.getSelection().toString()=='\n' || window.getSelection().toString().length == 0){
       return
     }
@@ -142,13 +126,8 @@ export default function Song() {
     let range = selection.getRangeAt(0)
     let lyrics = document.getElementById('lyrics').childNodes
     let nodeList = Array.from(lyrics)
-    // console.log(nodeList)
     nodeList.indexOf(range.startContainer) == nodeList.indexOf(range.endContainer)?console.log('yup'):console.log('nay')
-    //If hlp.indexs is not 0, then need to subtract one more from 
     hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer)}
-    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer)-4, 'end':nodeList.indexOf(range.endContainer)-4}
-    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':range.startOffset==0?nodeList.indexOf(range.startContainer)-4:nodeList.indexOf(range.startContainer)-5, 'end':range.startOffset==0?nodeList.indexOf(range.endContainer)-4:nodeList.indexOf(range.endContainer)-5}
-    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer),'txt':range.startContainer.textContent}
     selec=selection
     let rect = selection.getRangeAt(0).getBoundingClientRect()
     document.getElementById('tltp').style.visibility = "visible";
@@ -171,7 +150,6 @@ export default function Song() {
     document.getElementById('annon').style.visibility = "visible"
     document.getElementById('tltp').style.visibility = "hidden"
     aR=r
-    console.log(document.getElementById('lyrics').childNodes)
   }
   
   const cancelAnnotation = (event) => {
@@ -195,7 +173,7 @@ export default function Song() {
       let data= {[aR]:{'id':aR, 'note' :values.note, 'tags':tagList, 'tst':hlp}}
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
       document.getElementById('annon').style.visibility = "hidden"
-      //////////////get existing values and do comparison//////////////////////////////////////////
+      /////////////////////get existing values and do comparison/////////////////////////////
       let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
       const annotations = request.data()
       const tempAnonList = [];
@@ -204,15 +182,29 @@ export default function Song() {
          tempAnonList.push([ann, annotations[ann].tst.start])
         }
         tempAnonList.sort((a,b)=> a[1] - b[1])
+        console.log(tempAnonList)
+        tempAnonList.filter((a,b)=>a[1] != b[1])
+        console.log(tempAnonList)
         let indexOfAnn = tempAnonList.findIndex(element => element.toString() == [`${aR}`,hlp.start])
+        
         let changeInterval = 2
         let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
         await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
       }
-      console.log(txt)
     } catch (error) {
       console.log(error)
       alert("error occured, please try again")
+    }
+  }
+
+  const saveAnnTags = async (ivalue) => {
+    if(ivalue.length > 0){
+      anntagss[txt[0]].push(ivalue)
+      updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags', ivalue,'add')
+      setInputValue('')
+      setClcked(false)
+    } else {
+      setClcked(false)
     }
   }
 
@@ -258,7 +250,6 @@ export default function Song() {
     }
   },[clcked])
   
-
   return (
     <>
     <Spin size='large' spinning={sloading}>
@@ -301,27 +292,8 @@ export default function Song() {
                     })}
                     {clcked?
                     <Input ref={tagRef} id='tagInput' type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
-                      onPressEnter={()=>{
-                        if(inputValue.length > 0){
-                          anntagss[txt[0]].push(inputValue)
-                          console.log(anntagss[txt[0]])
-                          updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags',inputValue,'add')
-                          setInputValue('')
-                          setClcked(false)
-                        } else {
-                          setClcked(false)
-                        }
-                      }}
-                      onBlur={()=>{
-                        if(inputValue.length > 0){
-                          anntagss[txt[0]].push(inputValue)
-                          console.log(anntagss[txt[0]])
-                          setInputValue('')
-                          setClcked(false)
-                        } else {
-
-                        }
-                      }}
+                      onPressEnter={()=>{saveAnnTags(inputValue)}}
+                      onBlur={()=>{saveAnnTags(inputValue)}}
                     />:
                     <Tag id='annTag' onClick={()=>{setClcked(true)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>}
                   </div>

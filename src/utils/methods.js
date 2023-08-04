@@ -202,8 +202,19 @@ export const KanjiList = ({info, uid, pageType}) => {
 	useEffect(() => {
     if (curr !='') {
       inputRef.current?.focus();
-    }
-  }, [curr]);
+		}
+	}, [curr]);
+
+	const saveKanjiTags = async (kitem) => {
+		if(inputValue.length > 0) {
+			(kitem.tags).push(inputValue),
+			setCurrent('')
+			setInputValue(''),
+			updateDataArray('kanji',kitem.kanji,'tags',inputValue, 'add')
+		} else {
+			setCurrent('')
+		}
+	}
 
 	return (
 		<>
@@ -238,19 +249,9 @@ export const KanjiList = ({info, uid, pageType}) => {
 							)
 						})]:<div id='new tags'>{tagList}</div>}
 						{
-						curr == item.kanji?<Input type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
-						onPressEnter={()=>{
-							(item.tags).push(inputValue),
-							setCurrent('')
-							setInputValue(''),
-							updateDataArray('kanji',item.kanji,'tags',inputValue, 'add')
-						}}
-						onBlur={()=>{
-							(item.tags).push(inputValue),
-							setCurrent('')
-							setInputValue(''),
-							updateDataArray('kanji',item.kanji,'tags',inputValue, 'add')
-						}}
+						curr == item.kanji?<Input ref={inputRef} type='text' size='small' style={{width:'78px'}} value={inputValue} onChange={(e)=>{setInputValue(e.target.value)}} 
+						onPressEnter={()=>{saveKanjiTags(item)}}
+						onBlur={()=>{saveKanjiTags(item)}}
 						/>:<Tag id='mt' onClick={()=>{setCurrent(item.kanji)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>
 						}
 						</p>
