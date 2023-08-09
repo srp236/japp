@@ -131,7 +131,7 @@ export async function createMultiDocs(list, songName, artistName, oldList) {
   } else {
     list.forEach(element => {
       const ref = doc(db, "kanji", element.kanji);
-      batch.set(ref, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kun, 'onyomi':element.onr, 'meaning':element.meaning, 'bl':false, 'songRef':[`${songName} by ${artistName}`], 'tags':[], 'key':idx});
+      batch.set(ref, {'kanji':element.kanji, 'jlpt':element.jlpt, 'kunyomi': element.kunyomi, 'onyomi':element.onyomi, 'meaning':element.meaning, 'bl':false, 'songRef':[`${songName} by ${artistName}`], 'tags':[], 'key':idx});
       idx++
     });
     oldList.forEach(element => {

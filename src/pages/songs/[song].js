@@ -11,6 +11,7 @@ const { Header } = Layout;
 import { PlusOutlined } from '@ant-design/icons';
 import { updateDataIndex, addNote, updateDataField} from '@/src/firebase/firestore/addData';
 import { delField } from '@/src/firebase/firestore/delField';
+import Link from 'next/link';
 
 const { TextArea } = Input;
 let hlp = {}, lyricH = '', selec = '', aR = '',tagList = []
@@ -21,6 +22,7 @@ export default function Song() {
   const [info, setInfo] = useState([]);
   const [txt, setTxt] = useState(undefined);
   const [inputValue, setInputValue] = useState('')
+  const [editTxt, seteditTxt] = useState('no')
   const [clcked, setClcked] = useState(false);
   const [anntagss, setAnntagss] = useState({});
   const tagRef = useRef(null)
@@ -70,9 +72,11 @@ export default function Song() {
         const request = await getData('lyrics', artist)
         const response = request.data()[title]
         document.getElementById('lyrics').innerText = response.lyrics
-        // const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
-        // setInfo(request2)
+        lyricH = document.getElementById('lyrics').offsetHeight + 200
+        const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
+        setInfo(request2)
         setsLoading(false)
+        // look into storing lyrics in cache or something o we don't need to make a new reuqst everytime th epage loads
       }
     }
   }
@@ -154,11 +158,15 @@ export default function Song() {
   
   const cancelAnnotation = (event) => {
     event.preventDefault()
+    seteditTxt('no')
+    console.log('edittct: ', editTxt)
     setsLoading(true)
     document.getElementById('annon').style.visibility = "hidden"
-    getLyricsKanji().then(e=>{
-      setsLoading(false)
-    })
+    router.reload()
+    // getLyricsKanji().then(e=>{
+    //   setsLoading(false)
+    // })
+    seteditTxt('no')
   }
   
   const deleteAnnotation = async () => {
@@ -169,6 +177,7 @@ export default function Song() {
   
   const handleAnn = async (values) => {
     try {
+      seteditTxt('no')
       setTxt([aR, values.note])
       let data= {[aR]:{'id':aR, 'note' :values.note, 'tags':tagList, 'tst':hlp}}
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
@@ -216,10 +225,13 @@ export default function Song() {
     if(authUser){
       name = authUser.name  
       uid = authUser.uid
-      flashCardDoc(uid).then(e=>{
+      if(!document.getElementById('lyrics').innerText)
+      {flashCardDoc(uid).then(e=>{
         getLyricsKanji()
         // setNodel(document.getElementById('lyrics').childNodes)
-      })
+      })} else {
+        setsLoading(false)
+      }
     }
   },[router.query, authUser,loading])
   // useEffect(()=>{
@@ -265,6 +277,9 @@ export default function Song() {
         <div className={styles.bar}></div>
         <div className={styles.lbody}>
           <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}} suppressHydrationWarning>
+            <Button onClick={()=>{
+              document.getElementById('元').scrollIntoView(true)
+            }}>Test</Button>
             <KanjiList info={info} uid={uid} pageType=''/>
           </Card>
           <Card style={{width:'60%'}}>
@@ -278,7 +293,7 @@ export default function Song() {
               <div style={{width:'50%'}}>
                 {txt?
                 <Card id='annon' className={styles.annon}>
-                  <Button type='text' style={{}} onClick={()=>{setTxt(undefined)}}>Edit</Button>
+                  <Button type='text' style={{}} onClick={()=>{setTxt(undefined);seteditTxt(txt[1])}}>Edit</Button>
                   <Button type='text' style={{color:'red'}} onClick={()=>{deleteAnnotation()}}>Delete</Button>
                   <hr></hr>
                   <p style={{width:'90%', height:'100px'}}>{typeof(txt)=='string'?txt:txt[1]}</p>
@@ -298,7 +313,8 @@ export default function Song() {
                     <Tag id='annTag' onClick={()=>{setClcked(true)}} style={{borderStyle:'dashed'}}><PlusOutlined/> New Tag</Tag>}
                   </div>
                 </Card>
-                :<Card id='annon' className={styles.annon}>
+                :editTxt =='no'?
+                <Card id='annon' className={styles.annon}>
                   <Form name='createAnn' onFinish={handleAnn}>
                     <p>Enter notes and save to create annotation</p>
                     <Form.Item id='note' name='note' rules={[{min:0, message:'please add note'}]}><TextArea autoSize={{minRows: 3}} style={{}}></TextArea></Form.Item>
@@ -308,10 +324,24 @@ export default function Song() {
                     </div>
                   </Form>
                 </Card>
+                :<Card id='annon' className={styles.annon}>
+                <Form name='createAnn' onFinish={handleAnn}>
+                  <p>Edit Notes</p>
+                  <Form.Item id='note' name='note' rules={[{min:0, message:'please add note'}]}><TextArea defaultValue={editTxt} autoSize={{minRows: 3}} style={{}}></TextArea></Form.Item>
+                  <div style={{display:'flex', flexDirection:'row'}}>
+                    <Form.Item><Button style={{margin:'0px 0px', marginRight:'20px', backgroundColor:'rgb(230,26,57)'}} type='primary' htmlType="submit">Save</Button></Form.Item>
+                    <Form.Item><Button style={{margin:'0px 0px'}} type='text' onClick={cancelAnnotation}>Cancel</Button></Form.Item>
+                  </div>
+                </Form>
+              </Card>
                 }
               </div>
             </div>
           </Card> 
+          {/* <Button id='tltp' onClick={()=>{document.getElementById('元').getElementsByClassName('元')[0].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })}} className={styles.tltp}> */}
+          {/* <Button id='tltp' onClick={()=>{
+            
+          }} className={styles.tltp}> */}
           <Button id='tltp' onClick={createAnnotation} className={styles.tltp}>
             <p style={{padding:'0px 10px'}}>Create Annotation</p>
           </Button>

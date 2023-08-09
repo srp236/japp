@@ -69,6 +69,7 @@ export async function getKanjiInfo(list) {
 		// myList.push({kanji:s.kanji, jlpt:s.jlpt, kun:s.kun_readings, onr:s.on_readings, meaning: s.meanings, key: i, bl:false})
 		i++
 	}
+	console.log('gotten from api: ',myList)
 	return myList
 }
 
@@ -223,7 +224,7 @@ export const KanjiList = ({info, uid, pageType}) => {
 		{info.map(item=>(
 			<div key={item.key}>
 			<Card style={{width:'500px', margin:'20px 0px'}}>
-				<div key={item.key} style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
+				<div id={item.kanji} key={item.key} style={{display:'flex', flexDirection:'row', width:'500px', height:'150px'}}>
 					<h2 onClick={()=>{
 						let color
 						item.bl = !item.bl
