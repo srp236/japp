@@ -29,7 +29,6 @@ async function getSong(title, artist) {
     //make more specific
     const request = await getData('lyrics', artist)
     const response = request.data()[title]
-    console.log('firecall check: ', response)
     return response;
   } catch (error) {
     console.log('artist or song not in database')

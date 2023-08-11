@@ -208,7 +208,11 @@ export default function Song() {
 
   const saveAnnTags = async (ivalue) => {
     if(ivalue.length > 0){
-      anntagss[txt[0]].push(ivalue)
+      if(anntagss[txt[0]] == undefined){
+        anntagss[txt[0]] = [ivalue]
+      } else {
+        anntagss[txt[0]].push(ivalue)
+      }
       updateDataField(`users/${uid}/notes/`,`${title} by ${artist}`,txt[0],'tags', ivalue,'add')
       setInputValue('')
       setClcked(false)
@@ -277,9 +281,9 @@ export default function Song() {
         <div className={styles.bar}></div>
         <div className={styles.lbody}>
           <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}} suppressHydrationWarning>
-            <Button onClick={()=>{
+            {/* <Button onClick={()=>{
               document.getElementById('元').scrollIntoView(true)
-            }}>Test</Button>
+            }}>Test</Button> */}
             <KanjiList info={info} uid={uid} pageType=''/>
           </Card>
           <Card style={{width:'60%'}}>
