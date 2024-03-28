@@ -60,6 +60,18 @@ export default function Song() {
       const request = await getData('lyrics', artist)
       const response = request.data()[title]
       document.getElementById('lyrics').innerText = response.lyrics
+      ////////////// add span to each text node//////////////
+      document.getElementById('lyrics').childNodes.forEach((nde, id) => {
+        if (nde.nodeType == Node.TEXT_NODE){
+          const range = document.createRange()
+          let span = document.createElement("span")
+          span.id = id
+          range.selectNode(nde)
+          range.surroundContents(span)         
+        }
+      })
+      console.log('after',document.getElementById('lyrics'))
+      //////////////////////////////////////////////////////
       lyricH = document.getElementById('lyrics').offsetHeight + 200
       const request2 = await getDocuQuery('kanji', 'songRef', 'array-contains', `${title} by ${artist}`)
       setInfo(request2)
@@ -87,31 +99,24 @@ export default function Song() {
       const annotations = request.data()
       if(annotations){
         const annonKeys = Object.keys(annotations)
-        const div = document.getElementById('lyrics').childNodes
-        let nodeList = Array.from(div)
-        
         annonKeys.forEach(element => {
           const range = document.createRange()
           if(range){
-          range.setStart(nodeList[annotations[element].tst.start], annotations[element].tst.indexS)
-          range.setEnd(nodeList[annotations[element].tst.end], annotations[element].tst.indexE)
+          let startNode = document.getElementById(annotations[element].tst.startId).firstChild;
+          let endNode = document.getElementById(annotations[element].tst.endId).firstChild;
+          range.setStart(startNode, annotations[element].tst.startOffset)
+          range.setEnd(endNode, annotations[element].tst.endOffset)
             if(range.toString().length != 0){
               let a = document.createElement("a")
               let span = document.createElement("span")
               a.id = element
               a.onclick = function () {
-                document.getElementById('annon').style.visibility = "visible";
-                document.getElementById('annon').style.top = `${window.scrollY + document.getElementById(this.id).getBoundingClientRect().top - 120}px`;
-                setTxt([element, annotations[element].note])
+                openSavedAnnotation(element, annotations[element].note, this.id)
               }
-              //outside of onclick for annotation
-              let tp = []
-              annotations[element].tags.forEach(element2 => {
-                tp.push(element2)
-              });
-              anntagss[element] = tp
+              anntagss[element] = annotations[element].tags
               range.surroundContents(span)
               range.surroundContents(a)
+              ///// remove tags locally as well not just in db
             }
           }
         })
@@ -128,11 +133,21 @@ export default function Song() {
     }
     let selection = window.getSelection()
     let range = selection.getRangeAt(0)
-    let lyrics = document.getElementById('lyrics').childNodes
-    let nodeList = Array.from(lyrics)
-    nodeList.indexOf(range.startContainer) == nodeList.indexOf(range.endContainer)?console.log('yup'):console.log('nay')
-    hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer)}
+    // console.log(selection, range)
+    // console.log('papa', selection.focusNode.parentNode.id)
+    // console.log('mama', range.startContainer.parentNode.id)
+    // console.log('papa', range.endContainer.parentNode.id)
+    let startNodeId = range.startContainer.parentNode.id
+    let endNodeId = range.endContainer.parentNode.id
+    hlp = {'startOffset':range.startOffset,'endOffset':range.endOffset, 'startId':startNodeId, 'endId':endNodeId}
     selec=selection
+    // console.log('yl', lyrics)
+    // console.log('yl', lyrics.item(3))
+    // console.log('yl',document.getElementById('lyrics').innerText.indexOf(selection.toString()))
+    // let nodeList = Array.from(lyrics)
+    // nodeList.indexOf(range.startContainer) == nodeList.indexOf(range.endContainer)?console.log('yup'):console.log('nay')
+    // hlp = {'indexS':range.startOffset,'indexE':range.endOffset, 'start':nodeList.indexOf(range.startContainer), 'end':nodeList.indexOf(range.endContainer)}
+    // selec=selection
     let rect = selection.getRangeAt(0).getBoundingClientRect()
     document.getElementById('tltp').style.visibility = "visible";
     document.getElementById('tltp').style.top = `${window.scrollY + rect.bottom + 10}px`;
@@ -140,17 +155,54 @@ export default function Song() {
     document.getElementById('tltp').style.left = `${rect.x}px`;  
   } 
 
+  function openSavedAnnotation(elm, txt, id) {
+    document.getElementById('annon').style.visibility = "visible";
+    document.getElementById('annon').style.top = `${window.scrollY + document.getElementById(id).getBoundingClientRect().top - 120}px`;
+    setTxt([elm, txt])
+  }
+
+  // const openSavedAnnotation = (elm, txt, id) =>{
+  //   document.getElementById('annon').style.visibility = "visible";
+  //   document.getElementById('annon').style.top = `${window.scrollY + document.getElementById(id).getBoundingClientRect().top - 120}px`;
+  // }
+
+  //need local dictionary of note/annotaiotns to refernce before saved to db
+
   const createAnnotation = () => {
     setTxt(undefined)
     let r = (Math.random() + 1).toString(36).substring(5)
     let selection = selec.getRangeAt(0)
+    // console.log(hlp)
     let a = document.createElement("a")
     a.id = r
     a.onclick = function () {
       document.getElementById('annon').style.visibility = "visible";
     }
-    selection.surroundContents(document.createElement("span"))
-    selection.surroundContents(a)
+    if(hlp.startId != hlp.endId)
+    {
+      let firstNode = document.getElementById(hlp.startId)
+      let lastNode = document.getElementById(hlp.endId)
+      let currNode = firstNode.nextSibling;
+      while(currNode != lastNode && currNode != null)
+      {
+        if(currNode.nodeName == 'SPAN') {
+          console.log('cnode',currNode.firstChild)
+        //   // if(currNode.hasChildNodes() && currNode.textContent.length > 0) {
+            const range = document.createRange()
+            let b = document.createElement("a")
+            b.id = r
+            range.selectNode(currNode.firstChild)
+            range.surroundContents(document.createElement("span"))
+            range.surroundContents(b)
+            console.log(currNode)
+          }
+        currNode = currNode.nextSibling
+      }      
+    }
+
+    //need ofset of first and last already have 
+    // selection.surroundContents(document.createElement("span"))
+    // selection.surroundContents(a)
     document.getElementById('annon').style.visibility = "visible"
     document.getElementById('tltp').style.visibility = "hidden"
     aR=r
@@ -183,23 +235,21 @@ export default function Song() {
       await addNote("users",uid,"notes",`${title} by ${artist}`, data)
       document.getElementById('annon').style.visibility = "hidden"
       /////////////////////get existing values and do comparison/////////////////////////////
-      let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
-      const annotations = request.data()
-      const tempAnonList = [];
-      if(annotations){
-        for (var ann in annotations) {
-         tempAnonList.push([ann, annotations[ann].tst.start])
-        }
-        tempAnonList.sort((a,b)=> a[1] - b[1])
-        console.log(tempAnonList)
-        tempAnonList.filter((a,b)=>a[1] != b[1])
-        console.log(tempAnonList)
-        let indexOfAnn = tempAnonList.findIndex(element => element.toString() == [`${aR}`,hlp.start])
-        
-        let changeInterval = 2
-        let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
-        await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
-      }
+      // let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+      // const annotations = request.data()
+      // const tempAnonList = [];
+      // if(annotations){
+      //   for (var ann in annotations) {
+      //    tempAnonList.push([ann, annotations[ann].tst.start])
+      //   }
+      //   tempAnonList.sort((a,b)=> a[1] - b[1])
+      //   console.log(tempAnonList)
+
+      //   let indexOfAnn = tempAnonList.findIndex(element => element.toString() == [`${aR}`,hlp.start])
+      //   let changeInterval = 2
+      //   let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
+      //   await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
+      // }
     } catch (error) {
       console.log(error)
       alert("error occured, please try again")
@@ -238,27 +288,6 @@ export default function Song() {
       }
     }
   },[router.query, authUser,loading])
-  // useEffect(()=>{
-  //   setsLoading(true)
-    
-  //   if(authUser){
-  //     name = authUser.name  
-  //     uid = authUser.uid
-  //     flashCardDoc(uid).then(e=>{
-  //       getLyricsKanji()
-  //     })
-  //   }
-  // },[])
-
-  // useEffect(()=>{
-  //   if(authUser){
-  //     name = authUser.name  
-  //     uid = authUser.uid
-  //     flashCardDoc(uid).then(e=>{
-  //       getLyricsKanji()
-  //     })
-  //   }
-  // },[])
 
   useEffect(()=>{
     if(clcked){
@@ -281,9 +310,6 @@ export default function Song() {
         <div className={styles.bar}></div>
         <div className={styles.lbody}>
           <Card id='may' style={{width:'600px',overflowX:'hidden', overflowY:"scroll" ,height:lyricH}} suppressHydrationWarning>
-            {/* <Button onClick={()=>{
-              document.getElementById('元').scrollIntoView(true)
-            }}>Test</Button> */}
             <KanjiList info={info} uid={uid} pageType=''/>
           </Card>
           <Card style={{width:'60%'}}>
@@ -357,3 +383,63 @@ export default function Song() {
   );
 }
 
+   {/* <Button onClick={()=>{
+              document.getElementById('元').scrollIntoView(true)
+            }}>Test</Button> */}
+
+              // useEffect(()=>{
+  //   setsLoading(true)
+    
+  //   if(authUser){
+  //     name = authUser.name  
+  //     uid = authUser.uid
+  //     flashCardDoc(uid).then(e=>{
+  //       getLyricsKanji()
+  //     })
+  //   }
+  // },[])
+
+  // useEffect(()=>{
+  //   if(authUser){
+  //     name = authUser.name  
+  //     uid = authUser.uid
+  //     flashCardDoc(uid).then(e=>{
+  //       getLyricsKanji()
+  //     })
+  //   }
+  // },[])
+  // const handleAnn = async (values) => {
+  //   try {
+  //     seteditTxt('no')
+  //     setTxt([aR, values.note])
+  //     let data= {[aR]:{'id':aR, 'note' :values.note, 'tags':tagList, 'tst':hlp}}
+  //     await addNote("users",uid,"notes",`${title} by ${artist}`, data)
+  //     document.getElementById('annon').style.visibility = "hidden"
+  //     /////////////////////get existing values and do comparison/////////////////////////////
+  //     let request = await getNotes("users", uid, "notes",`${title} by ${artist}`)
+  //     const annotations = request.data()
+  //     const tempAnonList = [];
+  //     if(annotations){
+  //       for (var ann in annotations) {
+  //        tempAnonList.push([ann, annotations[ann].tst.start, annotations[ann].tst.originl])
+  //       }
+  //       // puts annotations in order
+  //       tempAnonList.sort((a,b)=> a[1] - b[1])
+  //       let tempVar
+  //       tempAnonList.forEach(element => {
+  //         if(element[2]==hlp.originl && element[0] != aR){
+  //           console.log('found')
+  //           console.log(tempAnonList.indexOf(element))
+  //         }
+  //       });
+  //       console.log(tempAnonList)
+  //       let indexOfAnn = tempAnonList.findIndex(element => element.toString() == [`${aR}`,hlp.start, hlp.originl])
+  //       let changeInterval = 2
+  //       let mydata = {'tst':{'start': hlp.start-(indexOfAnn*changeInterval),'end':hlp.end-(indexOfAnn*changeInterval)}}
+  //       await updateDataIndex(`users/${uid}/notes/`,`${title} by ${artist}`,aR, mydata)
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //     alert("error occured, please try again")
+  //   }
+  // }

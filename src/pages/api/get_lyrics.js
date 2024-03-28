@@ -7,6 +7,7 @@ let myLyrics, myKanji, kanjiInfoList;
 let newKanji = [], oldKanji = [];
 
 async function getLyrics(url) {
+  console.log('ready...start!')
   const browser = await chromium.puppeteer.launch()
   const page = await browser.newPage();
   await page.goto(url, {waitUntil:'load', timeout: 0})
@@ -27,6 +28,7 @@ async function getLyrics(url) {
   })
 
   await browser.close()
+  console.log('done')
   return lyrics
 }
 
